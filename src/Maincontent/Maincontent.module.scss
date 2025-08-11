@@ -1,0 +1,19 @@
+.mainContent {
+  flex-grow: 1;
+  height: 100vh;
+  transition: background-image 0.5s ease-in-out, background-color 0.5s ease-in-out;
+  background-size: cover;
+  background-position: center;
+  border-style: none;
+  position: relative; /* Add this to correctly position child elements */
+}
+
+.overlay {
+  backdrop-filter: blur(2px);
+  padding: 2rem;
+}
+
+.taskContainer {
+  height: 100%;
+  width: 100%;
+}

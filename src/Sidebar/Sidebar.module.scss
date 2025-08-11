@@ -1,0 +1,58 @@
+@import '../styles/variables';
+
+.sidebar {
+  width: 30vb;
+  background-color: $secondary-bg;
+  padding: 3rem 0.8rem;
+  border-right: 1px solid #333;
+  color:white;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0rem;
+  margin:0.4rem 0rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color:rgb(69, 66, 66)
+  }
+
+  &.active {
+    background-color:rgb(69, 66, 66);
+    opacity: 1;
+  }
+
+  .navButton {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+  }
+
+  .navIcon {
+    margin-right: 1rem;
+    font-size: 1.25rem;
+  }
+}
+
+.signOutButton{
+  position: absolute;
+  bottom: 0%;
+}
