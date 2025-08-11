@@ -1,102 +1,230 @@
-// src/Maincontent/Routed_files/TaskDetails.module.scss
-
 @import '../../styles/variables';
 
 .taskDetailsPanel {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  background-color: var(--secondary-bg); /* Use the variable */
+  padding: 0.6rem;
+  background-color: #2d2d2d;
   border-left: 1px solid var(--border-color);
-  min-width: 400px;
+  min-width: 22%;
   overflow-y: auto;
   position: relative;
   transition: all 0.3s ease-in-out;
-}
-
-.taskDetailsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.taskTitle {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin: 0;
-  flex-grow: 1;
+  color: #f1f1f1;
+  font-family: Segoe UI-SERIF;
+  height: 97vh;
 }
 
 .closeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.4rem;
   background: none;
   border: none;
-  color: var(--text-color-light);
+  color: #999;
   cursor: pointer;
-  font-size: 1.5rem;
-  transition: color 0.2s ease-in-out;
+  font-size: 1.2rem;
+  z-index: 10;
   &:hover {
-    color: var(--text-color);
+    color: #f1f1f1;
   }
 }
 
-.taskActions {
-  display: flex;
-  justify-content: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+.taskHeaderSection {
+  background-color: #252525;
+  border-radius: 5px;
+  margin-bottom: 0.2rem;
+  padding: 0.7rem;
 }
 
-.actionButton {
-  background-color: var(--task-item-bg);
-  color: var(--text-color-light);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 0rem 1rem;
+}
+
+.titleSection {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s, border-color 0.2s;
-  &:hover {
-    background-color: var(--task-item-hover-bg);
-    border-color: var(--accent-color);
-  }
+  flex-grow: 1;
 }
 
-.taskNotes,
-.taskDueDate,
-.taskSteps {
-  margin-bottom: 1rem;
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #777;
+  border-radius: 50%;
+  margin-right: 1rem;
+  cursor: pointer;
 }
 
-.notesHeader {
+.taskTitle {
+  font-size: 1.25rem;
   font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.notesTextarea {
-  width: 100%;
-  min-height: 100px;
-  background-color: var(--task-item-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-family: inherit;
-  resize: vertical;
-}
-
-.taskStepsList {
-  list-style: upper-alpha;
-  padding: 0;
   margin: 0;
+  flex-grow: 1;
+  color: #f1f1f1;
 }
 
-.taskStepItem {
+.starIcon {
+  color: #999;
+  font-size: 1.25rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  &:hover {
+    color: #ffd700;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.addStepSection,
+.myDaySection,
+.actionSection,
+.addFileSection,
+.noteSection {
+  background-color: #252525;
+  border-bottom: 1px solid #444;
+  padding: 0.7rem;
+  margin: 0.2rem 0rem;
+  border-radius: 5px;
+}
+
+.addStepSection {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  margin: 0; 
+  padding: 0.7rem 0rem 0rem;
+
+  &:hover {
+    background-color: #333;
+  }
+}
+
+.addStepIcon {
+  font-size: 1.2rem;
+  margin-right: 1rem;
+  color: #999;
+}
+
+.addStepText {
+  color: #999;
+}
+
+.myDaySection {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #333;
+  }
+}
+
+.myDayIcon {
+  font-size: 1.2rem;
+  margin-right: 1rem;
+  color: #ff9800;
+}
+
+.myDayText {
+  flex-grow: 1;
+  color: #f1f1f1;
+}
+
+.actionSection {
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.actionItem {
+    background-color: #252525;
+    border-bottom: 1px solid #444;
+    padding: 0.4rem;
+    border-radius: 5px;
+  &:hover {
+    background-color: #333;
+  }
+}
+
+.actionIcon {
+  font-size: 1.2rem;
+  margin-right: 1rem;
+  color: #999;
+}
+
+.actionText {
+  flex-grow: 1;
+  color: #f1f1f1;
+}
+
+.addFileSection {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    background-color: #333;
+  }
+}
+
+.addFileIcon {
+  font-size: 1.2rem;
+  margin-right: 1rem;
+  color: #999;
+}
+
+.addFileText {
+  flex-grow: 1;
+  color: #f1f1f1;
+}
+
+.noteSection {
+  padding: 1rem;
+  margin-top: 1rem;
+  &:hover {
+    background-color: #333;
+  }
+}
+
+.noteInput {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  color: #f1f1f1;
+  padding: 0;
+  font-family: inherit;
+  resize: none;
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #444;
+  color: #999;
+  margin-top: auto;
+}
+
+.creationTime {
+  font-size: 0.8rem;
+}
+
+.deleteIcon {
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #999;
+  &:hover {
+    color: #ff4d4d;
+  }
 }
