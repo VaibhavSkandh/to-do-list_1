@@ -23,10 +23,18 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
     setReminder(value);
     setOpenPanel(null);
   };
+  
+  const handleClearReminder = () => {
+    setReminder(null);
+  };
 
-  const handleSetDueDate = (value: string) => {
+  const handleSetDueDate = (value: string | null) => {
     setDueDate(value);
     setOpenPanel(null);
+  };
+
+  const handleClearDueDate = () => {
+    setDueDate(null);
   };
 
   const handleSetRepeat = (value: string) => {
@@ -36,48 +44,89 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
 
   const getDueDateDisplay = () => {
     if (!dueDate) return 'Add due date';
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Check for preset options
     if (dueDate === 'Today') return 'Due: Today';
     if (dueDate === 'Tomorrow') return 'Due: Tomorrow';
     if (dueDate === 'Next week') return 'Due: Next week';
 
-    return `Due: ${dueDate}`;
+    try {
+      const date = new Date(dueDate);
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      if (date.toDateString() === today.toDateString()) return 'Due: Today';
+      if (date.toDateString() === tomorrow.toDateString()) return 'Due: Tomorrow';
+
+      return `Due: ${date.toLocaleDateString()}`;
+    } catch (e) {
+      return `Due: ${dueDate}`;
+    }
   };
 
-  // useEffect to handle the notification logic
+  // useEffect to handle the notification logic for reminders and due dates
   useEffect(() => {
-    if (reminder instanceof Date) {
-      const now = new Date();
-      const timeUntilReminder = reminder.getTime() - now.getTime();
+    const handleNotification = (time: Date | null, title: string, type: 'reminder' | 'dueDate') => {
+      if (!time) return;
 
-      if (timeUntilReminder > 0) {
+      const now = new Date();
+      const timeUntilNotification = time.getTime() - now.getTime();
+      
+      const isOverdue = timeUntilNotification < 0;
+      const notificationTitle = isOverdue ? `${type === 'reminder' ? 'Reminder' : 'Due Date'} Overdue!` : `${type === 'reminder' ? 'Reminder' : 'Due Date'} Alert!`;
+      const notificationBody = isOverdue 
+        ? `The due date for your task "${title}" has passed.`
+        : `Time to complete your task: "${title}". It's due on ${time.toLocaleString()}.`;
+
+      if (timeUntilNotification > 0) {
         if ('Notification' in window && Notification.permission !== 'denied') {
           Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
               const timer = setTimeout(() => {
-                new Notification('Reminder!', {
-                  body: `Time to complete your task: ${taskTitle}`,
+                new Notification(notificationTitle, {
+                  body: notificationBody,
                 });
-              }, timeUntilReminder);
-
-              // Cleanup function to clear the timer if the component unmounts
-              // or the reminder is updated before the timer fires
+              }, timeUntilNotification);
               return () => clearTimeout(timer);
             } else {
-              console.warn('Notification permission denied. Cannot schedule reminder.');
+              console.warn('Notification permission denied. Cannot schedule notification.');
             }
           });
         } else {
           console.warn('Notifications are not supported or permission is denied.');
         }
-      } else {
-        console.warn('The reminder time is in the past, not scheduling notification.');
+      } else if (isOverdue) {
+        // Immediately show a notification if the due date is in the past
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(notificationTitle, {
+            body: notificationBody,
+          });
+        }
+      }
+    };
+
+    handleNotification(reminder instanceof Date ? reminder : null, taskTitle, 'reminder');
+    
+    // Convert dueDate string to a Date object for notification logic
+    let parsedDueDate: Date | null = null;
+    if (dueDate) {
+      if (dueDate === 'Today') parsedDueDate = new Date();
+      else if (dueDate === 'Tomorrow') {
+        parsedDueDate = new Date();
+        parsedDueDate.setDate(parsedDueDate.getDate() + 1);
+      }
+      else if (dueDate === 'Next week') {
+        parsedDueDate = new Date();
+        parsedDueDate.setDate(parsedDueDate.getDate() + 7);
+      }
+      else {
+        parsedDueDate = new Date(dueDate);
       }
     }
-  }, [reminder, taskTitle]); // Rerun this effect when reminder or taskTitle changes
+    handleNotification(parsedDueDate, taskTitle, 'dueDate');
+
+  }, [reminder, dueDate, taskTitle]); 
 
   return (
     <aside className={styles.taskDetailsPanel}>
@@ -108,6 +157,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
               <span className={`${styles.actionIcon} material-icons`}>schedule</span>
               <span className={styles.actionText}>Remind me</span>
               {reminder && <span className={styles.actionValue}>{reminder instanceof Date ? reminder.toLocaleString() : reminder}</span>}
+              {reminder && (
+                <button className={styles.clearDateButton} onClick={handleClearReminder}>
+                  <span className="material-icons">close</span>
+                </button>
+              )}
             </div>
             {openPanel === 'remindMe' && (
               <RemindMe onSetReminder={handleSetReminder} onClose={() => setOpenPanel(null)} />
@@ -117,7 +171,14 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
           <div className={`${styles.actionItem} ${openPanel === 'addDueDate' ? styles.active : ''}`}>
             <div className={styles.actionItemHeader} onClick={() => handlePanelToggle('addDueDate')}>
               <span className={`${styles.actionIcon} material-icons`}>calendar_today</span>
-              <span className={styles.actionText}>{getDueDateDisplay()}</span>
+              <span className={styles.actionText}>
+                {getDueDateDisplay()}
+              </span>
+              {dueDate && (
+                <button className={styles.clearDateButton} onClick={handleClearDueDate}>
+                  <span className="material-icons">close</span>
+                </button>
+              )}
             </div>
             {openPanel === 'addDueDate' && (
               <AddDueDate onSetDueDate={handleSetDueDate} onClose={() => setOpenPanel(null)} />
