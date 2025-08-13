@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styles from './TaskDetails.module.scss';
 import RemindMe from './functionalities_of_taskdetails/RemindMe';
 import AddDueDate from './functionalities_of_taskdetails/AddDueDate';
@@ -6,10 +6,12 @@ import Repeat from './functionalities_of_taskdetails/Repeat';
 
 interface TaskDetailsProps {
   onClose: () => void;
+  onDelete: (id: string) => void;
   taskTitle: string;
+  taskId: string;
 }
 
-const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
+const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId }) => {
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [reminder, setReminder] = useState<Date | string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
@@ -42,6 +44,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
     setOpenPanel(null);
   };
 
+  const handleClearRepeat = () => {
+    setRepeat(null);
+  };
+
   const getDueDateDisplay = () => {
     if (!dueDate) return 'Add due date';
 
@@ -65,11 +71,44 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
     }
   };
 
-  // useEffect to handle the notification logic for reminders and due dates
-  useEffect(() => {
-    const handleNotification = (time: Date | null, title: string, type: 'reminder' | 'dueDate') => {
-      if (!time) return;
+  const calculateNextDate = (startDate: Date, repeatPattern: string): Date | null => {
+    let nextDate = new Date(startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    while (nextDate.getTime() <= Date.now()) {
+      switch (repeatPattern) {
+        case 'Daily':
+          nextDate.setDate(nextDate.getDate() + 1);
+          break;
+        case 'Weekdays':
+          do {
+            nextDate.setDate(nextDate.getDate() + 1);
+          } while (nextDate.getDay() === 0 || nextDate.getDay() === 6);
+          break;
+        case 'Weekly':
+          nextDate.setDate(nextDate.getDate() + 7);
+          break;
+        case 'Monthly':
+          nextDate.setMonth(nextDate.getMonth() + 1);
+          break;
+        case 'Yearly':
+          nextDate.setFullYear(nextDate.getFullYear() + 1);
+          break;
+        default:
+          return null;
+      }
+    }
+    return nextDate;
+  };
+  
+  // Create a memoized dependency array
+  const effectDependencies = useMemo(() => [reminder, dueDate, taskTitle, repeat], [reminder, dueDate, taskTitle, repeat]);
+
+  useEffect(() => {
+    const activeTimers: number[] = [];
+
+    const scheduleNotification = (time: Date, title: string, type: 'reminder' | 'dueDate') => {
       const now = new Date();
       const timeUntilNotification = time.getTime() - now.getTime();
       
@@ -87,8 +126,16 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
                 new Notification(notificationTitle, {
                   body: notificationBody,
                 });
+                
+                if (repeat && type === 'reminder') {
+                  const nextReminderTime = calculateNextDate(time, repeat);
+                  if (nextReminderTime) {
+                    scheduleNotification(nextReminderTime, title, 'reminder');
+                  }
+                }
+                
               }, timeUntilNotification);
-              return () => clearTimeout(timer);
+              activeTimers.push(timer as unknown as number);
             } else {
               console.warn('Notification permission denied. Cannot schedule notification.');
             }
@@ -97,7 +144,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
           console.warn('Notifications are not supported or permission is denied.');
         }
       } else if (isOverdue) {
-        // Immediately show a notification if the due date is in the past
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification(notificationTitle, {
             body: notificationBody,
@@ -105,28 +151,39 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
         }
       }
     };
-
-    handleNotification(reminder instanceof Date ? reminder : null, taskTitle, 'reminder');
     
-    // Convert dueDate string to a Date object for notification logic
+    // Handle reminder notification
+    if (reminder instanceof Date) {
+      scheduleNotification(reminder, taskTitle, 'reminder');
+    }
+    
+    // Handle due date notification
     let parsedDueDate: Date | null = null;
     if (dueDate) {
-      if (dueDate === 'Today') parsedDueDate = new Date();
+      const now = new Date();
+      if (dueDate === 'Today') parsedDueDate = now;
       else if (dueDate === 'Tomorrow') {
-        parsedDueDate = new Date();
-        parsedDueDate.setDate(parsedDueDate.getDate() + 1);
+        parsedDueDate = new Date(now);
+        parsedDueDate.setDate(now.getDate() + 1);
       }
       else if (dueDate === 'Next week') {
-        parsedDueDate = new Date();
-        parsedDueDate.setDate(parsedDueDate.getDate() + 7);
+        parsedDueDate = new Date(now);
+        parsedDueDate.setDate(now.getDate() + 7);
       }
       else {
         parsedDueDate = new Date(dueDate);
       }
     }
-    handleNotification(parsedDueDate, taskTitle, 'dueDate');
+    if (parsedDueDate) {
+      scheduleNotification(parsedDueDate, taskTitle, 'dueDate');
+    }
 
-  }, [reminder, dueDate, taskTitle]); 
+    // Cleanup timers on component unmount or when dependencies change
+    return () => {
+      activeTimers.forEach(timer => clearTimeout(timer));
+    };
+
+  }, [effectDependencies]); 
 
   return (
     <aside className={styles.taskDetailsPanel}>
@@ -191,6 +248,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
               <span className={styles.actionText}>
                 {repeat ? `Repeat: ${repeat}` : 'Repeat'}
               </span>
+              {repeat && (
+                <button className={styles.clearDateButton} onClick={handleClearRepeat}>
+                  <span className="material-icons">close</span>
+                </button>
+              )}
             </div>
             {openPanel === 'repeat' && (
               <Repeat onSetRepeat={handleSetRepeat} onClose={() => setOpenPanel(null)} />
@@ -207,7 +269,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, taskTitle }) => {
       </div>
       <div className={styles.footer}>
         <div className={styles.creationTime}>Created 21 minutes ago</div>
-        <span className={`${styles.deleteIcon} material-icons`}>delete</span>
+        <span className={`${styles.deleteIcon} material-icons`} onClick={() => onDelete(taskId)}>delete</span>
       </div>
     </aside>
   );

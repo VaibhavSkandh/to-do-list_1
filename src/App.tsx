@@ -6,23 +6,43 @@ import Login from "./Login/Login";
 import TaskDetails from './Maincontent/Routed_files/TaskDetails';
 import styles from "./App.module.scss";
 import { useAuth } from "./Maincontent/Routed_files/useAuth";
+import { useTasks } from './Maincontent/Routed_files/useTasks';
 import { User } from "firebase/auth";
+
+// Define a type for the task to avoid type errors
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: Date;
+}
 
 const App: React.FC = () => {
   const { user, loading, signInWithGoogle, handleSignOut } = useAuth();
+  const { deleteTask } = useTasks(user);
   const [activeItem, setActiveItem] = useState("my-day");
-  const [selectedTask, setSelectedTask] = useState<{ id: string; title: string } | null>(null);
+  // Change selectedTask to hold the full Task object
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   if (loading) {
     return <div>Loading...</div>;
   }
-
-  const handleTaskSelect = (task: { id: string; title: string }) => {
+  
+  // This function now expects the full 'Task' object
+  const handleTaskSelect = (task: Task) => {
     setSelectedTask(task);
   };
 
   const handleCloseDetails = () => {
     setSelectedTask(null);
+  };
+  
+  // Update deleteTask handler to accept task ID
+  const handleDeleteTask = async (id: string) => {
+    if (user) {
+      await deleteTask(id);
+      setSelectedTask(null); // Close the details panel after deletion
+    }
   };
 
   return (
@@ -36,12 +56,15 @@ const App: React.FC = () => {
               activeItem={activeItem}
               setActiveItem={setActiveItem}
             />
+            {/* onTaskSelect prop now passes a function expecting a full Task object */}
             <MainContent onTaskSelect={handleTaskSelect} />
 
             {selectedTask && (
               <TaskDetails
-                taskTitle={selectedTask.title}
+                taskTitle={selectedTask.text}
+                taskId={selectedTask.id} // Pass the taskId prop
                 onClose={handleCloseDetails}
+                onDelete={handleDeleteTask} // Pass the updated delete handler
               />
             )}
           </>
