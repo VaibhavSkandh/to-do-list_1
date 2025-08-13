@@ -1,8 +1,16 @@
 import React from 'react';
 
-// Define the prop interface
+// Define the shape of the Task object
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: Date;
+}
+
+// Update the prop interface to accept the full Task object
 interface ImportantPageProps {
-  onTaskSelect: (task: { id: string; title: string }) => void;
+  onTaskSelect: (task: Task) => void;
 }
 
 // Update the component to use the props interface and accept the prop

@@ -4,8 +4,16 @@ import styles from './MyDayPage.module.scss';
 import { useAuth } from './useAuth';
 import { useTasks } from './useTasks';
 
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: Date;
+}
+
+// Update the TaskDetailsProp interface to accept the full Task object
 interface TaskDetailsProp {
-  onTaskSelect: (task: { id: string; title: string }) => void;
+  onTaskSelect: (task: Task) => void;
 }
 
 interface MyDayPageProps extends TaskDetailsProp {
@@ -94,8 +102,8 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
               <div
                 key={task.id}
                 className={styles.taskItem}
-                // Corrected onClick handler
-                onClick={() => onTaskSelect({ id: task.id, title: task.text })}
+                // Pass the full task object to onTaskSelect
+                onClick={() => onTaskSelect(task)}
               >
                 <input
                   type="checkbox"

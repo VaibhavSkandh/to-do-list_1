@@ -1,7 +1,18 @@
 import React from 'react';
-interface TasksPageProps {
-  onTaskSelect: (task: { id: string; title: string }) => void;
+
+// Define the shape of the Task object
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: Date;
 }
+
+// Update the prop interface to accept the full Task object
+interface TasksPageProps {
+  onTaskSelect: (task: Task) => void;
+}
+
 const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect }) => {
   return (
     <div>

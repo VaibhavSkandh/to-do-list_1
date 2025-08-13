@@ -11,9 +11,17 @@ import PlannedPage from "../Maincontent/Routed_files/PlannedPage";
 import AssignedPage from "../Maincontent/Routed_files/AssignedPage";
 import TasksPage from "../Maincontent/Routed_files/TasksPage";
 
+// Define the shape of the Task object based on App.tsx and useTasks.ts
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: Date;
+}
+
 // Define the shape of the props that MainContent expects
 interface MainContentProps {
-  onTaskSelect: (task: { id: string; title: string }) => void;
+  onTaskSelect: (task: Task) => void;
 }
 
 const MainContent: React.FC<MainContentProps> = ({ onTaskSelect }) => {
