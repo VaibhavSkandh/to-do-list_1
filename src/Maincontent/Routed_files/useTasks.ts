@@ -11,6 +11,7 @@ interface Task {
   completed: boolean;
   createdAt: Date;
   favorited: boolean; 
+  dueDate?: Date;
 }
 
 

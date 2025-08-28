@@ -1,5 +1,5 @@
 // src/Maincontent/Routed_files/MyDayPage.tsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from './MyDayPage.module.scss';
 import { useAuth } from './useAuth';
 import { useTasks } from './useTasks';
@@ -11,20 +11,26 @@ interface Task {
   completed: boolean;
   createdAt: Date;
   favorited: boolean;
+  dueDate?: Date;
 }
 
 interface MyDayPageProps {
   onTaskSelect: (task: Task) => void;
   currentBackground: string;
   handleThemeChange: (theme: string) => void;
+  isMinimized: boolean;
+  handleToggleMinimize: () => void;
 }
 
-const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeChange }) => {
+const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeChange, isMinimized, handleToggleMinimize }) => {
   const { user } = useAuth();
   const { tasks, loading, addTask, deleteTask, updateTask } = useTasks(user);
   const [newTaskText, setNewTaskText] = useState('');
+  const [showMorePanel, setShowMorePanel] = useState(false);
   const [showThemesPanel, setShowThemesPanel] = useState(false);
+  const [showSortPanel, setShowSortPanel] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [sortBy, setSortBy] = useState<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>('creationDate');
 
   const themes = [
     // Colors
@@ -72,12 +78,37 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
     }
   };
 
+  const getSortedTasks = useMemo(() => {
+    let sortedTasks = [...tasks];
+    switch (sortBy) {
+      case 'importance':
+        sortedTasks.sort((a, b) => (b.favorited ? 1 : 0) - (a.favorited ? 1 : 0));
+        break;
+      case 'dueDate':
+        sortedTasks.sort((a, b) => {
+          if (!a.dueDate && !b.dueDate) return 0;
+          if (!a.dueDate) return 1;
+          if (!b.dueDate) return -1;
+          return a.dueDate.getTime() - b.dueDate.getTime();
+        });
+        break;
+      case 'alphabetically':
+        sortedTasks.sort((a, b) => a.text.localeCompare(b.text));
+        break;
+      case 'creationDate':
+      default:
+        sortedTasks.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        break;
+    }
+    return sortedTasks;
+  }, [tasks, sortBy]);
+
   if (loading) {
     return <div className={styles.loading}>Loading tasks...</div>;
   }
 
   return (
-    <div className={styles.myDayLayout}>
+    <div className={`${styles.myDayLayout} ${isMinimized ? styles.minimized : ''}`} style={currentBackground.startsWith('#') ? { backgroundColor: currentBackground } : { backgroundImage: `url(${currentBackground})`, backgroundSize: 'cover' }}>
       <div className={styles.myDayContainer}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -85,41 +116,59 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
             <div className={styles.date}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
           </div>
           <div className={styles.headerRight}>
-            <button className={styles.headerIcon}>
-              <span role="img" aria-label="sort-by-icon" className="material-icons">sort</span>
+            <button className={styles.headerIcon} onClick={handleToggleMinimize}>
+              <span role="img" aria-label="fullscreen-zoom-icon" className="material-icons">{isMinimized ? 'fullscreen' : 'fullscreen_exit'}</span>
             </button>
-            <button
-              className={styles.headerIcon}
-              onClick={() => setShowThemesPanel(!showThemesPanel)}
-            >
-              <span role="img" aria-label="themes-icon" className="material-icons">palette</span>
+            <button className={styles.headerIcon} onClick={() => console.log('Lightbulb clicked')}>
+              <span role="img" aria-label="lightbulb-icon" className="material-icons">lightbulb_outline</span>
             </button>
+            <button className={styles.headerIcon} onClick={() => setShowMorePanel(!showMorePanel)}>
+              <span role="img" aria-label="more-options-icon" className="material-icons">more_horiz</span>
+            </button>
+            {showMorePanel && (
+              <div className={styles.moreOptionsPanel}>
+                <div className={styles.moreOption} onClick={() => setShowSortPanel(!showSortPanel)}>
+                  <span className={`${styles.moreIcon} material-icons`}>sort</span> Sort by
+                </div>
+                {showSortPanel && (
+                  <div className={styles.nestedPanel}>
+                    <div className={styles.sortOption} onClick={() => { setSortBy('importance'); setShowSortPanel(false); }}>Importance</div>
+                    <div className={styles.sortOption} onClick={() => { setSortBy('dueDate'); setShowSortPanel(false); }}>Due date</div>
+                    <div className={styles.sortOption} onClick={() => { setSortBy('alphabetically'); setShowSortPanel(false); }}>Alphabetically</div>
+                    <div className={styles.sortOption} onClick={() => { setSortBy('creationDate'); setShowSortPanel(false); }}>Creation date</div>
+                  </div>
+                )}
+                <div className={styles.moreOption} onClick={() => setShowThemesPanel(!showThemesPanel)}>
+                  <span className={`${styles.moreIcon} material-icons`}>palette</span> Theme
+                </div>
+                {showThemesPanel && (
+                  <div className={styles.nestedPanel}>
+                    {themes.map((theme, index) => (
+                      <div key={index} className={styles.themeOption} onClick={() => handleThemeChange(theme)}>
+                        <div className={styles.themeCircle} style={theme.startsWith('#') ? { backgroundColor: theme } : { backgroundImage: `url(${theme})` }}></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className={styles.moreOption} onClick={() => console.log('Hide completed tasks clicked')}>
+                  <span className={`${styles.moreIcon} material-icons`}>check_box_outline_blank</span> Hide completed tasks
+                </div>
+                <div className={styles.moreOption} onClick={() => console.log('Print list clicked')}>
+                  <span className={`${styles.moreIcon} material-icons`}>print</span> Print list
+                </div>
+                <div className={styles.moreOption} onClick={() => console.log('Email list clicked')}>
+                  <span className={`${styles.moreIcon} material-icons`}>mail_outline</span> Email list
+                </div>
+                <div className={styles.moreOption} onClick={() => console.log('Pin to start clicked')}>
+                  <span className={`${styles.moreIcon} material-icons`}>push_pin</span> Pin to start
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        {showThemesPanel && (
-          <div className={styles.themesPanel}>
-            <h3 className={styles.themesHeader}>Theme</h3>
-            <div className={styles.themesGrid}>
-              {themes.map((theme, index) => (
-                <div
-                  key={index}
-                  className={`${styles.themeOption} ${currentBackground === theme ? styles.selected : ''} ${theme.startsWith('#') ? '' : styles.themeOptionImage}`}
-                  style={
-                    theme.startsWith('#')
-                      ? { backgroundColor: theme }
-                      : { backgroundImage: `url(${theme})` }
-                  }
-                  onClick={() => handleThemeChange(theme)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
         <div className={styles.taskList}>
-          {tasks.length > 0 ? (
-            tasks.map((task) => (
+          {getSortedTasks.length > 0 ? (
+            getSortedTasks.map((task) => (
               <div
                 key={task.id}
                 className={styles.taskItem}

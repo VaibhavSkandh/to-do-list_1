@@ -7,6 +7,7 @@ interface Task {
   completed: boolean;
   createdAt: Date;
   favorited: boolean; 
+  dueDate?: Date;
 }
 
 // Update the prop interface to accept the full Task object
