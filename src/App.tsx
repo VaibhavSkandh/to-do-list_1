@@ -21,14 +21,13 @@ const App: React.FC = () => {
   const { user, loading, signInWithGoogle, handleSignOut } = useAuth();
   const { deleteTask } = useTasks(user);
   const [activeItem, setActiveItem] = useState("my-day");
-  // Change selectedTask to hold the full Task object
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   if (loading) {
     return <div>Loading...</div>;
   }
   
-  // This function now expects the full 'Task' object
   const handleTaskSelect = (task: Task) => {
     setSelectedTask(task);
   };
@@ -37,17 +36,20 @@ const App: React.FC = () => {
     setSelectedTask(null);
   };
   
-  // Update deleteTask handler to accept task ID
   const handleDeleteTask = async (id: string) => {
     if (user) {
       await deleteTask(id);
-      setSelectedTask(null); // Close the details panel after deletion
+      setSelectedTask(null);
     }
+  };
+
+  const handleToggleMinimize = () => {
+    setIsMinimized(!isMinimized);
   };
 
   return (
     <Router>
-      <div className={styles.appContainer}>
+      <div className={`${styles.appContainer} ${isMinimized ? styles.minimized : ''}`}>
         {user ? (
           <>
             <Sidebar
@@ -56,15 +58,16 @@ const App: React.FC = () => {
               activeItem={activeItem}
               setActiveItem={setActiveItem}
             />
-            {/* onTaskSelect prop now passes a function expecting a full Task object */}
-            <MainContent onTaskSelect={handleTaskSelect} />
+            <MainContent onTaskSelect={handleTaskSelect} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} />
 
             {selectedTask && (
               <TaskDetails
                 taskTitle={selectedTask.text}
-                taskId={selectedTask.id} // Pass the taskId prop
+                taskId={selectedTask.id}
                 onClose={handleCloseDetails}
-                onDelete={handleDeleteTask} // Pass the updated delete handler
+                onDelete={handleDeleteTask} 
+                favorited={false}
+                onFavoriteToggle={() => {}}
               />
             )}
           </>

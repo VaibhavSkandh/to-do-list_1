@@ -22,9 +22,11 @@ interface Task {
 // Define the shape of the props that MainContent expects
 interface MainContentProps {
   onTaskSelect: (task: Task) => void;
+  isMinimized: boolean;
+  handleToggleMinimize: () => void;
 }
 
-const MainContent: React.FC<MainContentProps> = ({ onTaskSelect }) => {
+const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, isMinimized, handleToggleMinimize }) => {
   const [currentBackground, setCurrentBackground] = useState('');
 
   const handleThemeChange = (theme: string) => {
@@ -42,7 +44,7 @@ const MainContent: React.FC<MainContentProps> = ({ onTaskSelect }) => {
       <div className={styles.overlay}>
         <div className={styles.taskContainer}>
           <Routes>
-            <Route path="/" element={<MyDayPage currentBackground={currentBackground} handleThemeChange={handleThemeChange} onTaskSelect={onTaskSelect} />} />
+            <Route path="/" element={<MyDayPage currentBackground={currentBackground} handleThemeChange={handleThemeChange} onTaskSelect={onTaskSelect} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} />} />
             <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} />} />
             <Route path="/planned" element={<PlannedPage onTaskSelect={onTaskSelect} />} />
             <Route path="/assigned" element={<AssignedPage onTaskSelect={onTaskSelect} />} />
