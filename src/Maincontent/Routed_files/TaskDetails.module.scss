@@ -1,18 +1,22 @@
+/* src/Maincontent/Routed_files/TaskDetails.module.scss */
 @import '../../styles/variables';
 
 .taskDetailsPanel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 380px;
+  height: 196%;
+  background-color: #2d2d2d;
+  border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   padding: 0.6rem;
-  background-color: #2d2d2d;
-  border-left: 1px solid var(--border-color);
-  min-width: 22%;
-  overflow-y: auto;
-  position: relative;
-  transition: all 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
   color: #f1f1f1;
   font-family: Segoe UI-SERIF;
-  height: 97vh;
+  z-index: 20;
 }
 
 .closeButton {
@@ -67,12 +71,22 @@
   color: #f1f1f1;
 }
 
+/* New style for the star button */
+.favoriteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1rem;
+}
+
 .starIcon {
   color: #999;
   font-size: 1.25rem;
-  cursor: pointer;
-  margin-left: 1rem;
-  &:hover {
+  transition: color 0.2s;
+  
+  // New style to fill the star with yellow
+  &.favorited {
     color: #ffd700;
   }
 }

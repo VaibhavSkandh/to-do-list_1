@@ -62,9 +62,11 @@ const App: React.FC = () => {
             {selectedTask && (
               <TaskDetails
                 taskTitle={selectedTask.text}
-                taskId={selectedTask.id} // Pass the taskId prop
+                taskId={selectedTask.id}
                 onClose={handleCloseDetails}
-                onDelete={handleDeleteTask} // Pass the updated delete handler
+                onDelete={handleDeleteTask} 
+                favorited={false}
+                onFavoriteToggle={() => {}}
               />
             )}
           </>

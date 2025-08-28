@@ -10,6 +10,7 @@ interface Task {
   text: string;
   completed: boolean;
   createdAt: Date;
+  favorited: boolean; 
 }
 
 
@@ -35,6 +36,7 @@ export const useTasks = (user: User | null) => {
         text: doc.data().text,
         completed: doc.data().completed,
         createdAt: doc.data().createdAt.toDate(),
+        favorited: doc.data().favorited || false, // Fix: Added 'favorited' property
       }));
       setTasks(fetchedTasks);
       setLoading(false);
@@ -53,6 +55,7 @@ export const useTasks = (user: User | null) => {
       await addDoc(collection(db, `users/${user.uid}/tasks`), {
         text: taskText,
         completed: false,
+        favorited: false, // Fix: Added 'favorited' property for new tasks
         createdAt: new Date(),
       });
     } catch (error) {

@@ -3,29 +3,28 @@ import React, { useState } from 'react';
 import styles from './MyDayPage.module.scss';
 import { useAuth } from './useAuth';
 import { useTasks } from './useTasks';
+import TaskDetails from './TaskDetails';
 
 interface Task {
   id: string;
   text: string;
   completed: boolean;
   createdAt: Date;
+  favorited: boolean;
 }
 
-// Update the TaskDetailsProp interface to accept the full Task object
-interface TaskDetailsProp {
+interface MyDayPageProps {
   onTaskSelect: (task: Task) => void;
-}
-
-interface MyDayPageProps extends TaskDetailsProp {
   currentBackground: string;
   handleThemeChange: (theme: string) => void;
 }
 
-const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeChange, onTaskSelect }) => {
+const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeChange }) => {
   const { user } = useAuth();
   const { tasks, loading, addTask, deleteTask, updateTask } = useTasks(user);
   const [newTaskText, setNewTaskText] = useState('');
   const [showThemesPanel, setShowThemesPanel] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const themes = [
     // Colors
@@ -51,12 +50,34 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
     }
   };
 
+  const handleTaskSelect = (task: Task) => {
+    setSelectedTask(task);
+  };
+  
+  const handleCloseTaskDetails = () => {
+    setSelectedTask(null);
+  };
+
+  const handleFavoriteToggle = () => {
+    if (selectedTask) {
+      updateTask(selectedTask.id, { favorited: !selectedTask.favorited });
+      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+    }
+  };
+
+  const handleDeleteTask = (id: string) => {
+    deleteTask(id);
+    if (selectedTask?.id === id) {
+      handleCloseTaskDetails();
+    }
+  };
+
   if (loading) {
     return <div className={styles.loading}>Loading tasks...</div>;
   }
 
   return (
-    <div className='container'>
+    <div className={styles.myDayLayout}>
       <div className={styles.myDayContainer}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -102,27 +123,24 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
               <div
                 key={task.id}
                 className={styles.taskItem}
-                // Pass the full task object to onTaskSelect
-                onClick={() => onTaskSelect(task)}
+                onClick={() => handleTaskSelect(task)}
               >
-                <input
-                  type="checkbox"
-                  className={styles.checkbox}
-                  checked={task.completed}
-                  onChange={() => updateTask(task.id, { completed: !task.completed })}
-                  onClick={(e) => e.stopPropagation()} // Prevents parent onClick from firing
-                />
+                <div className={`${styles.circleCheckbox} ${task.completed ? styles.completed : ''}`}>
+                  {task.completed && <span className={`${styles.checkIcon} material-icons`}>check</span>}
+                </div>
                 <span className={`${styles.taskText} ${task.completed ? styles.completed : ''}`}>
                   {task.text}
                 </span>
                 <button
-                  className={styles.deleteButton}
+                  className={styles.favoriteButton}
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevents parent onClick from firing
-                    deleteTask(task.id);
+                    e.stopPropagation();
+                    updateTask(task.id, { favorited: !task.favorited });
                   }}
                 >
-                  <span className="material-icons">close</span>
+                  <span className={`${styles.starIcon} material-icons ${task.favorited ? styles.favorited : ''}`}>
+                    star
+                  </span>
                 </button>
               </div>
             ))
@@ -159,6 +177,16 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
           </button>
         </div>
       </div>
+      {selectedTask && (
+        <TaskDetails
+          taskTitle={selectedTask.text}
+          taskId={selectedTask.id}
+          onClose={handleCloseTaskDetails}
+          onDelete={handleDeleteTask}
+          favorited={selectedTask.favorited}
+          onFavoriteToggle={handleFavoriteToggle}
+        />
+      )}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+// src/Maincontent/Routed_files/TaskDetails.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import styles from './TaskDetails.module.scss';
 import RemindMe from './functionalities_of_taskdetails/RemindMe';
@@ -9,9 +10,11 @@ interface TaskDetailsProps {
   onDelete: (id: string) => void;
   taskTitle: string;
   taskId: string;
+  favorited: boolean; // Add this line
+  onFavoriteToggle: () => void; // Add this line
 }
 
-const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId }) => {
+const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId, favorited, onFavoriteToggle }) => {
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [reminder, setReminder] = useState<Date | string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
@@ -25,7 +28,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     setReminder(value);
     setOpenPanel(null);
   };
-  
+
   const handleClearReminder = () => {
     setReminder(null);
   };
@@ -101,7 +104,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     }
     return nextDate;
   };
-  
+
   // Create a memoized dependency array
   const effectDependencies = useMemo(() => [reminder, dueDate, taskTitle, repeat], [reminder, dueDate, taskTitle, repeat]);
 
@@ -111,10 +114,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     const scheduleNotification = (time: Date, title: string, type: 'reminder' | 'dueDate') => {
       const now = new Date();
       const timeUntilNotification = time.getTime() - now.getTime();
-      
+
       const isOverdue = timeUntilNotification < 0;
       const notificationTitle = isOverdue ? `${type === 'reminder' ? 'Reminder' : 'Due Date'} Overdue!` : `${type === 'reminder' ? 'Reminder' : 'Due Date'} Alert!`;
-      const notificationBody = isOverdue 
+      const notificationBody = isOverdue
         ? `The due date for your task "${title}" has passed.`
         : `Time to complete your task: "${title}". It's due on ${time.toLocaleString()}.`;
 
@@ -126,14 +129,14 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
                 new Notification(notificationTitle, {
                   body: notificationBody,
                 });
-                
+
                 if (repeat && type === 'reminder') {
                   const nextReminderTime = calculateNextDate(time, repeat);
                   if (nextReminderTime) {
                     scheduleNotification(nextReminderTime, title, 'reminder');
                   }
                 }
-                
+
               }, timeUntilNotification);
               activeTimers.push(timer as unknown as number);
             } else {
@@ -151,12 +154,12 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
         }
       }
     };
-    
+
     // Handle reminder notification
     if (reminder instanceof Date) {
       scheduleNotification(reminder, taskTitle, 'reminder');
     }
-    
+
     // Handle due date notification
     let parsedDueDate: Date | null = null;
     if (dueDate) {
@@ -183,7 +186,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
       activeTimers.forEach(timer => clearTimeout(timer));
     };
 
-  }, [effectDependencies]); 
+  }, [effectDependencies]);
 
   return (
     <aside className={styles.taskDetailsPanel}>
@@ -195,7 +198,15 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
           <div className={styles.titleSection}>
             <span className={styles.checkbox}></span>
             <h2 className={styles.taskTitle}>{taskTitle}</h2>
-            <span className={`${styles.starIcon} material-icons`}>star_border</span>
+            {/* The new star button */}
+            <button
+              className={styles.favoriteButton}
+              onClick={onFavoriteToggle}
+            >
+              <span className={`${styles.starIcon} material-icons ${favorited ? styles.favorited : ''}`}>
+                star
+              </span>
+            </button>
           </div>
         </div>
         <div className={styles.addStepSection}>
