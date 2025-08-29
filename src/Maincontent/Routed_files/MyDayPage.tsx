@@ -31,22 +31,34 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
   const [showSortPanel, setShowSortPanel] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [sortBy, setSortBy] = useState<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>('creationDate');
+  const [currentThemeColor, setCurrentThemeColor] = useState('white'); // New state for font color
+  const [showIcons, setShowIcons] = useState(false); // New state to control icon visibility
+  
+  // A list of theme colors to choose from
+  const themeColors = [
+    '#FFFFFF', // White
+    '#FFC0CB', // Pink
+    '#87CEEB', // Sky Blue
+    '#ADFF2F', // Green Yellow
+    '#FFA07A', // Light Salmon
+    '#9370DB', // Medium Purple
+    '#FFD700', // Gold
+  ];
 
-  const themes = [
-    // Colors
-    '#2d2d3e', '#7c2d2d', '#2d7c4f', '#2d4f7c', '#7c2d7c', '#7c7c2d',
-    '#2d7c7c', '#7c4f2d', '#4f2d7c', '#4f2d2d', '#7c2d4f', '#4f2d2d',
-    // Image URLs (placeholders)
-    'https://placehold.co/600x400/2d7c2d/FFFFFF?text=Forest',
-    'https://placehold.co/600x400/2d4f7c/FFFFFF?text=Waves',
-    'https://placehold.co/600x400/7c2d7c/FFFFFF?text=Space',
-    'https://placehold.co/600x400/7c7c2d/FFFFFF?text=Desert',
+  // A list of background image URLs to choose from
+  const themeBackgrounds = [
+    'https://placehold.co/1920x1080/0000FF/FFFFFF/png?text=Blue+Sky',
+    'https://placehold.co/1920x1080/FF0000/FFFFFF/png?text=Red+Sunset',
+    'https://placehold.co/1920x1080/008000/FFFFFF/png?text=Green+Forest',
+    'https://placehold.co/1920x1080/800080/FFFFFF/png?text=Purple+Mountains',
+    'https://placehold.co/1920x1080/333333/FFFFFF/png?text=Dark+Abstract',
   ];
 
   const handleAddTask = () => {
     if (newTaskText.trim() !== '') {
       addTask(newTaskText);
       setNewTaskText('');
+      setShowIcons(false); // Hide icons after adding task
     }
   };
 
@@ -76,6 +88,10 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
     if (selectedTask?.id === id) {
       handleCloseTaskDetails();
     }
+  };
+
+  const handleColorThemeChange = (color: string) => {
+    setCurrentThemeColor(color);
   };
 
   const getSortedTasks = useMemo(() => {
@@ -108,7 +124,13 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
   }
 
   return (
-    <div className={`${styles.myDayLayout} ${isMinimized ? styles.minimized : ''}`} style={currentBackground.startsWith('#') ? { backgroundColor: currentBackground } : { backgroundImage: `url(${currentBackground})`, backgroundSize: 'cover' }}>
+    <div 
+      className={`${styles.myDayLayout} ${isMinimized ? styles.minimized : ''}`} 
+      style={{
+        backgroundImage: `url(${currentBackground})`,
+        backgroundSize: 'cover',
+        '--font-color': currentThemeColor,
+      } as React.CSSProperties}>
       <div className={styles.myDayContainer}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -143,9 +165,16 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
                 </div>
                 {showThemesPanel && (
                   <div className={styles.nestedPanel}>
-                    {themes.map((theme, index) => (
-                      <div key={index} className={styles.themeOption} onClick={() => handleThemeChange(theme)}>
-                        <div className={styles.themeCircle} style={theme.startsWith('#') ? { backgroundColor: theme } : { backgroundImage: `url(${theme})` }}></div>
+                    <div style={{ padding: '0.5rem 1rem' }}>Colors</div>
+                    {themeColors.map((color, index) => (
+                      <div key={index} className={styles.themeOption} onClick={() => handleColorThemeChange(color)}>
+                        <div className={styles.themeCircle} style={{ backgroundColor: color }}></div>
+                      </div>
+                    ))}
+                    <div style={{ padding: '0.5rem 1rem', marginTop: '1rem' }}>Backgrounds</div>
+                    {themeBackgrounds.map((background, index) => (
+                      <div key={index} className={styles.themeOption} onClick={() => handleThemeChange(background)}>
+                        <div className={styles.themeCircle} style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover' }}></div>
                       </div>
                     ))}
                   </div>
@@ -211,20 +240,25 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
           className={styles.taskInput}
           placeholder="Add a task"
           value={newTaskText}
-          onChange={(e) => setNewTaskText(e.target.value)}
+          onChange={(e) => {
+            setNewTaskText(e.target.value);
+            setShowIcons(e.target.value.trim().length > 0);
+          }}
           onKeyPress={handleKeyPress}
         />
-        <div className={styles.iconGroup}>
-          <button className={styles.iconButton}>
-            <span className="material-icons">wb_sunny</span>
-          </button>
-          <button className={styles.iconButton}>
-            <span className="material-icons">event</span>
-          </button>
-          <button className={styles.iconButton}>
-            <span className="material-icons">label</span>
-          </button>
-        </div>
+        {showIcons && (
+          <div className={styles.iconGroup}>
+            <button className={styles.iconButton}>
+              <span className="material-icons">wb_sunny</span>
+            </button>
+            <button className={styles.iconButton}>
+              <span className="material-icons">event</span>
+            </button>
+            <button className={styles.iconButton}>
+              <span className="material-icons">label</span>
+            </button>
+          </div>
+        )}
       </div>
       {selectedTask && (
         <TaskDetails
