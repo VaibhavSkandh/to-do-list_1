@@ -15,6 +15,8 @@ interface Task {
   text: string;
   completed: boolean;
   createdAt: Date;
+  favorited: boolean;
+  dueDate?: Date;
 }
 
 const App: React.FC = () => {
@@ -70,13 +72,14 @@ const App: React.FC = () => {
 
             {selectedTask && (
               <TaskDetails
-                taskTitle={selectedTask.text}
-                taskId={selectedTask.id}
-                onClose={handleCloseDetails}
-                onDelete={handleDeleteTask} 
-                favorited={false}
-                onFavoriteToggle={() => {}}
-              />
+      taskTitle={selectedTask.text}
+      taskId={selectedTask.id}
+      onClose={handleCloseDetails}
+      onDelete={handleDeleteTask}
+      favorited={selectedTask.favorited} 
+      onFavoriteToggle={() => {}} 
+      creationTime={selectedTask.createdAt} 
+    />
             )}
           </>
         ) : (

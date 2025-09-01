@@ -10,11 +10,12 @@ interface TaskDetailsProps {
   onDelete: (id: string) => void;
   taskTitle: string;
   taskId: string;
-  favorited: boolean; // Add this line
-  onFavoriteToggle: () => void; // Add this line
+  favorited: boolean;
+  onFavoriteToggle: () => void;
+  creationTime: Date;
 }
 
-const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId, favorited, onFavoriteToggle }) => {
+const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId, favorited, onFavoriteToggle, creationTime }) => {
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [reminder, setReminder] = useState<Date | string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
@@ -54,7 +55,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
   const getDueDateDisplay = () => {
     if (!dueDate) return 'Add due date';
 
-    // Check for preset options
     if (dueDate === 'Today') return 'Due: Today';
     if (dueDate === 'Tomorrow') return 'Due: Tomorrow';
     if (dueDate === 'Next week') return 'Due: Next week';
@@ -105,7 +105,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     return nextDate;
   };
 
-  // Create a memoized dependency array
   const effectDependencies = useMemo(() => [reminder, dueDate, taskTitle, repeat], [reminder, dueDate, taskTitle, repeat]);
 
   useEffect(() => {
@@ -136,7 +135,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
                     scheduleNotification(nextReminderTime, title, 'reminder');
                   }
                 }
-
               }, timeUntilNotification);
               activeTimers.push(timer as unknown as number);
             } else {
@@ -155,12 +153,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
       }
     };
 
-    // Handle reminder notification
     if (reminder instanceof Date) {
       scheduleNotification(reminder, taskTitle, 'reminder');
     }
 
-    // Handle due date notification
     let parsedDueDate: Date | null = null;
     if (dueDate) {
       const now = new Date();
@@ -181,12 +177,26 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
       scheduleNotification(parsedDueDate, taskTitle, 'dueDate');
     }
 
-    // Cleanup timers on component unmount or when dependencies change
     return () => {
       activeTimers.forEach(timer => clearTimeout(timer));
     };
-
   }, [effectDependencies]);
+
+  const formatCreationTime = (date: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+
+    if (diffInMinutes < 1) {
+      return 'Created just now';
+    } else if (diffInMinutes < 60) {
+      return `Created ${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+    } else if (diffInMinutes < 1440) { // 60 * 24
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      return `Created ${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    } else {
+      return `Created on ${date.toLocaleDateString()}`;
+    }
+  };
 
   return (
     <aside className={styles.taskDetailsPanel}>
@@ -198,7 +208,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
           <div className={styles.titleSection}>
             <span className={styles.checkbox}></span>
             <h2 className={styles.taskTitle}>{taskTitle}</h2>
-            {/* The new star button */}
             <button
               className={styles.favoriteButton}
               onClick={onFavoriteToggle}
@@ -226,9 +235,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
               <span className={styles.actionText}>Remind me</span>
               {reminder && <span className={styles.actionValue}>{reminder instanceof Date ? reminder.toLocaleString() : reminder}</span>}
               {reminder && (
-                <button className={styles.clearDateButton} onClick={handleClearReminder}>
-                  <span className="material-icons">close</span>
-                </button>
+               <button className={styles.clearDateButton} onClick={handleClearReminder}>
+  <span className="material-icons">close</span>
+</button>
               )}
             </div>
             {openPanel === 'remindMe' && (
@@ -279,7 +288,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
         </div>
       </div>
       <div className={styles.footer}>
-        <div className={styles.creationTime}>Created 21 minutes ago</div>
+        <div className={styles.creationTime}>{formatCreationTime(creationTime)}</div>
         <span className={`${styles.deleteIcon} material-icons`} onClick={() => onDelete(taskId)}>delete</span>
       </div>
     </aside>
