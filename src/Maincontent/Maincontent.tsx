@@ -1,30 +1,26 @@
-// src/Maincontent/Maincontent.tsx
-
 import React, { useState } from "react";
 import styles from "./Maincontent.module.scss";
 import { Routes, Route } from "react-router-dom";
 
-// Import all the routed pages
 import MyDayPage from "../Maincontent/Routed_files/MyDayPage";
 import ImportantPage from "../Maincontent/Routed_files/ImportantPage";
 import PlannedPage from "../Maincontent/Routed_files/PlannedPage";
 import AssignedPage from "../Maincontent/Routed_files/AssignedPage";
 import TasksPage from "../Maincontent/Routed_files/TasksPage";
 
-// Define the shape of the Task object based on App.tsx and useTasks.ts
 interface Task {
   id: string;
   text: string;
   completed: boolean;
   createdAt: Date;
+  favorited: boolean;
+  dueDate?: Date;
 }
-
-// Define the shape of the props that MainContent expects
 interface MainContentProps {
   onTaskSelect: (task: Task) => void;
   isMinimized: boolean;
   handleToggleMinimize: () => void;
-  handleToggleSidebar: () => void; // New prop added
+  handleToggleSidebar: () => void;
 }
 
 const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, isMinimized, handleToggleMinimize, handleToggleSidebar }) => {

@@ -19,7 +19,7 @@ interface MyDayPageProps {
   handleThemeChange: (theme: string) => void;
   isMinimized: boolean;
   handleToggleMinimize: () => void;
-  handleToggleSidebar: () => void; // New prop for sidebar toggle
+  handleToggleSidebar: () => void;
 }
 
 const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeChange, isMinimized, handleToggleMinimize, handleToggleSidebar }) => {
@@ -271,13 +271,14 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ currentBackground, handleThemeCha
       </div>
       {selectedTask && (
         <TaskDetails
-          taskTitle={selectedTask.text}
-          taskId={selectedTask.id}
-          onClose={handleCloseTaskDetails}
-          onDelete={handleDeleteTask}
-          favorited={selectedTask.favorited}
-          onFavoriteToggle={handleFavoriteToggle}
-        />
+      taskTitle={selectedTask.text}
+      taskId={selectedTask.id}
+      onClose={handleCloseTaskDetails}
+      onDelete={handleDeleteTask}
+      favorited={selectedTask.favorited}
+      onFavoriteToggle={handleFavoriteToggle}
+      creationTime={selectedTask.createdAt}
+    />
       )}
     </div>
   );
