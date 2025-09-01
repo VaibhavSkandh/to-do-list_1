@@ -1,5 +1,10 @@
 // src/Maincontent/Routed_files/TaskDetails.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../../firebase';
+import { useAuth } from './useAuth'; // Correct import for the custom auth hook
 import styles from './TaskDetails.module.scss';
 import RemindMe from './functionalities_of_taskdetails/RemindMe';
 import AddDueDate from './functionalities_of_taskdetails/AddDueDate';
@@ -16,10 +21,33 @@ interface TaskDetailsProps {
 }
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId, favorited, onFavoriteToggle, creationTime }) => {
+  const { user } = useAuth(); // Correctly get the user from your custom hook
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [reminder, setReminder] = useState<Date | string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
   const [repeat, setRepeat] = useState<string | null>(null);
+  const [files, setFiles] = useState<{ name: string; url: string; }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchFiles = async () => {
+      try {
+        const taskRef = doc(db, 'users', user.uid, 'tasks', taskId);
+        const taskSnap = await getDoc(taskRef);
+        if (taskSnap.exists()) {
+          const data = taskSnap.data();
+          if (data.files) {
+            setFiles(data.files);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching files:", error);
+      }
+    };
+    fetchFiles();
+  }, [user, taskId]);
 
   const handlePanelToggle = (panelName: string) => {
     setOpenPanel(openPanel === panelName ? null : panelName);
@@ -52,9 +80,33 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     setRepeat(null);
   };
 
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && user) {
+      try {
+        const storageRef = ref(storage, `tasks/${taskId}/${file.name}`);
+        
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        const taskRef = doc(db, 'users', user.uid, 'tasks', taskId);
+        await updateDoc(taskRef, {
+          files: arrayUnion({
+            name: file.name,
+            url: downloadURL,
+          }),
+        });
+        setFiles(prevFiles => [...prevFiles, { name: file.name, url: downloadURL }]);
+        alert('File uploaded successfully!');
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        alert('File upload failed. Check the console for details.');
+      }
+    }
+  };
+
   const getDueDateDisplay = () => {
     if (!dueDate) return 'Add due date';
-
     if (dueDate === 'Today') return 'Due: Today';
     if (dueDate === 'Tomorrow') return 'Due: Tomorrow';
     if (dueDate === 'Next week') return 'Due: Next week';
@@ -279,10 +331,37 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
             )}
           </div>
         </div>
+
         <div className={styles.addFileSection}>
-          <span className={`${styles.addFileIcon} material-icons`}>attach_file</span>
-          <span className={styles.addFileText}>Add file</span>
+          <label htmlFor="file-upload" className={styles.addFileLabel}>
+            <span className={`${styles.addFileIcon} material-icons`}>attach_file</span>
+            <span className={styles.addFileText}>Add file</span>
+          </label>
+          <input
+            id="file-upload"
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
         </div>
+
+        {files.length > 0 && (
+          <div className={styles.uploadedFilesSection}>
+            <h3 className={styles.uploadedFilesTitle}>Attached Files</h3>
+            <ul className={styles.filesList}>
+              {files.map((file, index) => (
+                <li key={index} className={styles.fileItem}>
+                  <a href={file.url} target="_blank" rel="noopener noreferrer" className={styles.fileLink}>
+                    <span className={`${styles.fileIcon} material-icons`}>insert_drive_file</span>
+                    {file.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className={styles.noteSection}>
           <textarea className={styles.noteInput} placeholder="Add note"></textarea>
         </div>
