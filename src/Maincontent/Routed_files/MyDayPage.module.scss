@@ -1,45 +1,84 @@
+// src/Maincontent/Routed_files/MyDayPage.module.scss
 .myDayLayout {
+  --font-color: white; // Default font color
   display: flex;
   flex-direction: column;
   height: 95vh;
   width: 100%;
-  padding: 2rem;
+  padding: 2rem 3rem;
   box-sizing: border-box;
-  color: white;
+  color: var(--font-color); // Use CSS variable here
   position: relative;
-  transition: background-image 0.5s ease-in-out, background-color 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .minimized {
-  height: 100px;
-  width: 300px;
-  border-radius: 12px;
-  backdrop-filter: blur(20px);
-  background-color: rgba(0, 0, 0, 0.4);
-  padding: 1rem;
-  transition: all 0.5s ease-in-out;
-  position: absolute;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 100;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+    height: 377px;
+    width: 300px;
+    border-radius: 12px;
+    backdrop-filter: blur(20px);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 1rem;
+    transition: all 0.5s ease-in-out;
+    position: absolute;
+    top: -15rem;
+    right: 0rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
 
-  .myDayContainer, .taskbar {
-    display: none;
+  .myDayContainer {
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
 
+  // These elements should be hidden in the minimized state
+  .taskList {
+    display: none;
+  }
+  
+  .taskbar {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    margin: 0;
+  }
+  
   .header {
     width: 100%;
     margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .headerLeft {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  // The title and date should be visible but with a smaller font
+  .pageTitle {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+  }
+
+  .date {
+    display: none; // Hide the date for a cleaner look
   }
 
   .headerRight {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    position: initial; // Reset position
   }
 }
 
@@ -47,17 +86,16 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  width: 97%;
+  width: 90%;
   padding: 0;
-  margin-left: 2rem;
-  margin-right: 2rem;
+  margin: 0 auto;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin: -2rem 0rem 4rem -6rem;
   flex-shrink: 0;
 }
 
@@ -67,13 +105,15 @@
 }
 
 .pageTitle {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 .date {
   font-size: 1rem;
   opacity: 0.8;
+  margin-top: 0.25rem;
 }
 
 .headerRight {
@@ -81,19 +121,20 @@
   align-items: center;
   gap: 1rem;
   position: relative;
+  right:-14vh;
 }
 
 .headerIcon {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.25rem;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-
+    background-color: #5c575745;
+    border: none;
+    color: var(--font-color); // Use CSS variable here
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 2;
+    transition: background-color 0.2s;
+    border-radius: 9px;
   &:hover {
-    opacity: 1;
+    background-color: #5c5757;
   }
 }
 
@@ -110,6 +151,7 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
+  color: white; // Panel text is always white for contrast
 }
 
 .moreOption {
@@ -163,16 +205,10 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: 2px solid white;
   background-size: cover;
   background-position: center;
-  transition: border-color 0.2s;
-  
-  &:hover {
-    border-color: #ffffff;
-  }
 }
-
 
 .taskList {
   flex-grow: 1;
@@ -189,12 +225,16 @@
   opacity: 0.7;
 }
 
-.taskItem {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  width: 100%;
+.taskItem {    
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    width: 114vb;
+    cursor: pointer;
+    background-color: #26242469;
+    margin: 1vh 0vh;
+    border-radius: 9px;
 }
 
 .circleCheckbox {
@@ -271,11 +311,12 @@
   margin-right: 2rem;
   margin-bottom: 2rem;
   flex-shrink: 0;
+  color: white; // Taskbar content is always white
 }
 
 .addButton {
   background-color: transparent;
-  color: white;
+  color: var(--font-color);
   border: none;
   font-size: 1.5rem;
   margin-right: 0.5rem;
@@ -291,12 +332,13 @@
   flex-grow: 1;
   background: none;
   border: none;
-  color: white;
+  color: var(--font-color); // Updated to use CSS variable
   font-size: 1rem;
   outline: none;
   
   &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--font-color); // Updated to use CSS variable
+    opacity: 0.5;
   }
 }
 
@@ -319,15 +361,6 @@
   }
 }
 
-.icon {
-  filter: grayscale(1);
-  transition: filter 0.2s;
-
-  &:hover {
-    filter: grayscale(0);
-  }
-}
-
 .focusCard {
   text-align: center;
   padding: 2rem;
@@ -335,6 +368,7 @@
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   backdrop-filter: blur(10px);
+  color: var(--font-color);
 }
 
 .focusCardIcon {
