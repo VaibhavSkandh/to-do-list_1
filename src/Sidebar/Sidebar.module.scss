@@ -6,6 +6,11 @@
   padding: 3rem 0.8rem;
   border-right: 1px solid #333;
   color:white;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebarHidden {
+  display: none;
 }
 
 ul {
@@ -47,12 +52,186 @@ ul {
   }
 
   .navIcon {
-    margin-right: 1rem;
     font-size: 1.25rem;
+    margin-right: 1rem;
+    opacity: 0.6;
+    transition: margin-right 0.3s ease;
+  }
+
+  .navText {
+    font-size: 1rem;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
   }
 }
 
-.signOutButton{
-  position: absolute;
-  bottom: 0%;
+.userInfo {
+  display: flex;
+  align-items: center;
+  padding: 0 0.8rem;
+  margin-bottom: 2rem;
+  transition: padding 0.3s ease, margin-bottom 0.3s ease;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+  transition: font-size 0.3s ease;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background-color: rgba(69, 66, 66, 0.4);
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  transition: padding 0.3s ease, margin-bottom 0.3s ease;
+
+  input {
+    flex-grow: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 1rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .material-icons {
+    color: white;
+  }
+}
+
+.navigation {
+  margin-bottom: 2rem;
+  transition: margin-bottom 0.3s ease;
+}
+
+.divider {
+  border: 0;
+  height: 1px;
+  background: #333;
+  margin: 1rem 0;
+}
+
+.bottomActions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.5rem;
+
+  button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+
+    .material-icons {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+.newListButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  width: 100%;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.signOutButton {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.minimizedSidebar {
+    width: 118px;
+    padding: 3rem 0.5rem;
+    position: relative;
+    top: -342px;
+    border-radius: 13px; 
+     .userInfo {
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+
+  .userName {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .searchBar {
+    padding: 0.3rem;
+    margin-bottom: 1rem;
+    input {
+      display: none; // Hide the search input field
+    }
+  }
+
+  .navItem {
+    padding: 0.5rem 0.2rem;
+  }
+
+  .navIcon {
+    margin-right: 0;
+  }
+
+  .navText {
+    display: none; // Hide the text
+  }
+
+  .bottomActions {
+    padding: 0.2rem;
+    .newListButton, .signOutButton {
+      span:last-child { // Selects the text
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    overflow-y: auto;
+  }
 }

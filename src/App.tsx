@@ -1,3 +1,4 @@
+// App.tsx
 import React, { useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import Sidebar from "./Sidebar/Sidebar";
@@ -9,7 +10,6 @@ import { useAuth } from "./Maincontent/Routed_files/useAuth";
 import { useTasks } from './Maincontent/Routed_files/useTasks';
 import { User } from "firebase/auth";
 
-// Define a type for the task to avoid type errors
 interface Task {
   id: string;
   text: string;
@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [activeItem, setActiveItem] = useState("my-day");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -47,6 +48,10 @@ const App: React.FC = () => {
     setIsMinimized(!isMinimized);
   };
 
+  const handleToggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
   return (
     <Router>
       <div className={`${styles.appContainer} ${isMinimized ? styles.minimized : ''}`}>
@@ -57,8 +62,11 @@ const App: React.FC = () => {
               onSignOut={handleSignOut}
               activeItem={activeItem}
               setActiveItem={setActiveItem}
+              isVisible={isSidebarVisible}
+              isMinimized={isMinimized} // Pass the state to Sidebar
+              setIsMinimized={setIsMinimized} // Pass the setter function
             />
-            <MainContent onTaskSelect={handleTaskSelect} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} />
+            <MainContent onTaskSelect={handleTaskSelect} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} />
 
             {selectedTask && (
               <TaskDetails

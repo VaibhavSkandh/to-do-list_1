@@ -24,9 +24,10 @@ interface MainContentProps {
   onTaskSelect: (task: Task) => void;
   isMinimized: boolean;
   handleToggleMinimize: () => void;
+  handleToggleSidebar: () => void; // New prop added
 }
 
-const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, isMinimized, handleToggleMinimize }) => {
+const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, isMinimized, handleToggleMinimize, handleToggleSidebar }) => {
   const [currentBackground, setCurrentBackground] = useState('');
 
   const handleThemeChange = (theme: string) => {
@@ -44,7 +45,7 @@ const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, isMinimized, ha
       <div className={styles.overlay}>
         <div className={styles.taskContainer}>
           <Routes>
-            <Route path="/" element={<MyDayPage currentBackground={currentBackground} handleThemeChange={handleThemeChange} onTaskSelect={onTaskSelect} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} />} />
+            <Route path="/" element={<MyDayPage currentBackground={currentBackground} handleThemeChange={handleThemeChange} onTaskSelect={onTaskSelect} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} />} />
             <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} />} />
             <Route path="/planned" element={<PlannedPage onTaskSelect={onTaskSelect} />} />
             <Route path="/assigned" element={<AssignedPage onTaskSelect={onTaskSelect} />} />
