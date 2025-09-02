@@ -1,10 +1,8 @@
-// src/Maincontent/Routed_files/TaskDetails.tsx
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../firebase';
-import { useAuth } from './useAuth'; // Correct import for the custom auth hook
+import { useAuth } from './useAuth';
 import styles from './TaskDetails.module.scss';
 import RemindMe from './functionalities_of_taskdetails/RemindMe';
 import AddDueDate from './functionalities_of_taskdetails/AddDueDate';
@@ -29,9 +27,13 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
   const [files, setFiles] = useState<{ name: string; url: string; }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Define a unique key for this task in local storage
+  const localStorageKey = `taskDetails-${taskId}`;
+
   useEffect(() => {
     if (!user) return;
 
+    // Load files from Firestore
     const fetchFiles = async () => {
       try {
         const taskRef = doc(db, 'users', user.uid, 'tasks', taskId);
@@ -47,7 +49,44 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
       }
     };
     fetchFiles();
-  }, [user, taskId]);
+
+    // Load data from localStorage on component mount
+    const savedData = localStorage.getItem(localStorageKey);
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.reminder) {
+          // Check if the reminder is a Date string and convert it back to a Date object
+          const isDateString = typeof parsedData.reminder === 'string' && !isNaN(new Date(parsedData.reminder).getTime());
+          if (isDateString) {
+            setReminder(new Date(parsedData.reminder));
+          } else {
+            setReminder(parsedData.reminder);
+          }
+        }
+        if (parsedData.dueDate) {
+          setDueDate(parsedData.dueDate);
+        }
+        if (parsedData.repeat) {
+          setRepeat(parsedData.repeat);
+        }
+      } catch (e) {
+        console.error("Failed to parse localStorage data:", e);
+        // Clear corrupt data to avoid future errors
+        localStorage.removeItem(localStorageKey);
+      }
+    }
+  }, [user, taskId, localStorageKey]); // Depend on taskId and localStorageKey to re-run if the task changes
+
+  // Helper function to save all values to localStorage
+  const saveToLocalStorage = (newReminder: Date | string | null, newDueDate: string | null, newRepeat: string | null) => {
+    const dataToSave = {
+      reminder: newReminder instanceof Date ? newReminder.toISOString() : newReminder,
+      dueDate: newDueDate,
+      repeat: newRepeat,
+    };
+    localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
+  };
 
   const handlePanelToggle = (panelName: string) => {
     setOpenPanel(openPanel === panelName ? null : panelName);
@@ -56,28 +95,34 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
   const handleSetReminder = (value: string | Date) => {
     setReminder(value);
     setOpenPanel(null);
+    saveToLocalStorage(value, dueDate, repeat);
   };
 
   const handleClearReminder = () => {
     setReminder(null);
+    saveToLocalStorage(null, dueDate, repeat);
   };
 
   const handleSetDueDate = (value: string | null) => {
     setDueDate(value);
     setOpenPanel(null);
+    saveToLocalStorage(reminder, value, repeat);
   };
 
   const handleClearDueDate = () => {
     setDueDate(null);
+    saveToLocalStorage(reminder, null, repeat);
   };
 
   const handleSetRepeat = (value: string) => {
     setRepeat(value);
     setOpenPanel(null);
+    saveToLocalStorage(reminder, dueDate, value);
   };
 
   const handleClearRepeat = () => {
     setRepeat(null);
+    saveToLocalStorage(reminder, dueDate, null);
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,10 +130,8 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     if (file && user) {
       try {
         const storageRef = ref(storage, `tasks/${taskId}/${file.name}`);
-        
         const snapshot = await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
-
         const taskRef = doc(db, 'users', user.uid, 'tasks', taskId);
         await updateDoc(taskRef, {
           files: arrayUnion({
@@ -110,16 +153,13 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     if (dueDate === 'Today') return 'Due: Today';
     if (dueDate === 'Tomorrow') return 'Due: Tomorrow';
     if (dueDate === 'Next week') return 'Due: Next week';
-
     try {
       const date = new Date(dueDate);
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
-
       if (date.toDateString() === today.toDateString()) return 'Due: Today';
       if (date.toDateString() === tomorrow.toDateString()) return 'Due: Tomorrow';
-
       return `Due: ${date.toLocaleDateString()}`;
     } catch (e) {
       return `Due: ${dueDate}`;
@@ -130,7 +170,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     let nextDate = new Date(startDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     while (nextDate.getTime() <= Date.now()) {
       switch (repeatPattern) {
         case 'Daily':
@@ -161,17 +200,14 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
 
   useEffect(() => {
     const activeTimers: number[] = [];
-
     const scheduleNotification = (time: Date, title: string, type: 'reminder' | 'dueDate') => {
       const now = new Date();
       const timeUntilNotification = time.getTime() - now.getTime();
-
       const isOverdue = timeUntilNotification < 0;
       const notificationTitle = isOverdue ? `${type === 'reminder' ? 'Reminder' : 'Due Date'} Overdue!` : `${type === 'reminder' ? 'Reminder' : 'Due Date'} Alert!`;
       const notificationBody = isOverdue
         ? `The due date for your task "${title}" has passed.`
         : `Time to complete your task: "${title}". It's due on ${time.toLocaleString()}.`;
-
       if (timeUntilNotification > 0) {
         if ('Notification' in window && Notification.permission !== 'denied') {
           Notification.requestPermission().then(permission => {
@@ -180,7 +216,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
                 new Notification(notificationTitle, {
                   body: notificationBody,
                 });
-
                 if (repeat && type === 'reminder') {
                   const nextReminderTime = calculateNextDate(time, repeat);
                   if (nextReminderTime) {
@@ -204,11 +239,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
         }
       }
     };
-
     if (reminder instanceof Date) {
       scheduleNotification(reminder, taskTitle, 'reminder');
     }
-
     let parsedDueDate: Date | null = null;
     if (dueDate) {
       const now = new Date();
@@ -228,7 +261,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
     if (parsedDueDate) {
       scheduleNotification(parsedDueDate, taskTitle, 'dueDate');
     }
-
     return () => {
       activeTimers.forEach(timer => clearTimeout(timer));
     };
@@ -237,7 +269,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
   const formatCreationTime = (date: Date) => {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
     if (diffInMinutes < 1) {
       return 'Created just now';
     } else if (diffInMinutes < 60) {
