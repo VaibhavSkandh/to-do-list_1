@@ -16,19 +16,24 @@ interface Task {
   favorited: boolean;
   dueDate?: Date;
 }
+
 interface MainContentProps {
   onTaskSelect: (task: Task) => void;
+  tasks: Task[]; // Add tasks to props
   isMinimized: boolean;
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
 }
 
-const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, isMinimized, handleToggleMinimize, handleToggleSidebar }) => {
+const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar }) => {
   const [currentBackground, setCurrentBackground] = useState('');
 
   const handleThemeChange = (theme: string) => {
     setCurrentBackground(theme);
   };
+  
+  // Filter tasks to find all favorited tasks
+  const favoritedTasks = tasks.filter(task => task.favorited);
 
   return (
     <main
@@ -42,7 +47,7 @@ const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, isMinimized, ha
         <div className={styles.taskContainer}>
           <Routes>
             <Route path="/" element={<MyDayPage currentBackground={currentBackground} handleThemeChange={handleThemeChange} onTaskSelect={onTaskSelect} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} />} />
-            <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} />} />
+            <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} tasks={favoritedTasks} />} />
             <Route path="/planned" element={<PlannedPage onTaskSelect={onTaskSelect} />} />
             <Route path="/assigned" element={<AssignedPage onTaskSelect={onTaskSelect} />} />
             <Route path="/tasks" element={<TasksPage onTaskSelect={onTaskSelect} />} />
