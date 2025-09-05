@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import styles from "./Maincontent.module.scss";
 import { Routes, Route } from "react-router-dom";
+import { Task } from "../App";
 
 import MyDayPage from "../Maincontent/Routed_files/MyDayPage";
 import ImportantPage from "../Maincontent/Routed_files/ImportantPage";
@@ -10,18 +11,11 @@ import PlannedPage from "../Maincontent/Routed_files/PlannedPage";
 import AssignedPage from "../Maincontent/Routed_files/AssignedPage";
 import TasksPage from "../Maincontent/Routed_files/TasksPage";
 
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
-  favorited: boolean;
-  dueDate?: Date;
-}
-
 interface MainContentProps {
   onTaskSelect: (task: Task) => void;
   tasks: Task[];
+  onUpdateTask: (id: string, updatedFields: Partial<Task>) => Promise<void>;
+  onDeleteTask: (id: string) => Promise<void>;
   isMinimized: boolean;
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
@@ -37,11 +31,11 @@ const getContrastColor = (hex: string) => {
   return (yiq >= 128) ? '#000000' : '#FFFFFF';
 };
 
-const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar }) => {
+const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar }) => {
   const [theme, setTheme] = useState({
     backgroundImage: '',
     backgroundColor: '#87CEEB', 
-    fontColor: '#000000', 
+    fontColor: '#000000',
   });
 
   const handleThemeChange = (newTheme: { backgroundColor?: string; backgroundImage?: string; fontColor?: string }) => {
@@ -49,38 +43,36 @@ const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, tasks, isMinimi
       let newFontColor = newTheme.fontColor || prevTheme.fontColor;
       let newBackgroundColor = newTheme.backgroundColor || prevTheme.backgroundColor;
       let newBackgroundImage = newTheme.backgroundImage || prevTheme.backgroundImage;
-
+  
       if (newTheme.backgroundColor) {
         newFontColor = getContrastColor(newTheme.backgroundColor);
       }
-      if (newTheme.backgroundImage) {
-        newFontColor = '#FFFFFF';
-      }
-
+      
       return {
-        backgroundImage: newBackgroundImage,
+        ...prevTheme,
+        ...newTheme,
+        fontColor: newFontColor,
         backgroundColor: newBackgroundColor,
-        fontColor: newFontColor
+        backgroundImage: newBackgroundImage,
       };
     });
   };
 
-  const getSortedTasks = tasks.sort((a, b) => a.text.localeCompare(b.text));
   const favoritedTasks = tasks.filter(task => task.favorited);
-  const plannedTasks = tasks.filter(task => task.dueDate);
-  const assignedTasks = tasks.filter(task => false);
+  const plannedTasks = tasks.filter(task => task.dueDate || task.reminder);
+  const assignedTasks = tasks.filter(task => task.text.includes('@'));
   const allTasks = tasks;
 
   return (
-    <main className={styles.mainContentContainer}>
+    <main className={styles.mainContent} style={{ backgroundImage: `url(${theme.backgroundImage})`, backgroundColor: theme.backgroundColor }}>
       <div className={styles.mainContainer}>
         <div className={styles.taskContainer}>
           <Routes>
-            <Route path="/" element={<MyDayPage onTaskSelect={onTaskSelect} tasks={tasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
-            <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} tasks={favoritedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
-            <Route path="/planned" element={<PlannedPage onTaskSelect={onTaskSelect} tasks={plannedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
-            <Route path="/assigned" element={<AssignedPage onTaskSelect={onTaskSelect} tasks={assignedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
-            <Route path="/tasks" element={<TasksPage onTaskSelect={onTaskSelect} tasks={allTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/" element={<MyDayPage onTaskSelect={onTaskSelect} tasks={tasks} onUpdateTask={onUpdateTask} onDeleteTask={onDeleteTask} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} tasks={favoritedTasks} onUpdateTask={onUpdateTask} onDeleteTask={onDeleteTask} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/planned" element={<PlannedPage onTaskSelect={onTaskSelect} tasks={plannedTasks} onUpdateTask={onUpdateTask} onDeleteTask={onDeleteTask} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/assigned" element={<AssignedPage onTaskSelect={onTaskSelect} tasks={assignedTasks} onUpdateTask={onUpdateTask} onDeleteTask={onDeleteTask} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/tasks" element={<TasksPage onTaskSelect={onTaskSelect} tasks={allTasks} onUpdateTask={onUpdateTask} onDeleteTask={onDeleteTask} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
           </Routes>
         </div>
       </div>

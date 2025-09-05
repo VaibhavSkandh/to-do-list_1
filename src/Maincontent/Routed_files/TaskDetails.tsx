@@ -1,3 +1,5 @@
+// src/Maincontent/Routed_files/TaskDetails.tsx
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -7,10 +9,12 @@ import styles from './TaskDetails.module.scss';
 import RemindMe from './functionalities_of_taskdetails/RemindMe';
 import AddDueDate from './functionalities_of_taskdetails/AddDueDate';
 import Repeat from './functionalities_of_taskdetails/Repeat';
+import { Task } from '../../App';
 
-interface TaskDetailsProps {
+export interface TaskDetailsProps {
   onClose: () => void;
   onDelete: (id: string) => void;
+  onUpdateTask: (id: string, updatedFields: Partial<Task>) => Promise<void>;
   taskTitle: string;
   taskId: string;
   favorited: boolean;
@@ -18,7 +22,7 @@ interface TaskDetailsProps {
   creationTime: Date;
 }
 
-const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId, favorited, onFavoriteToggle, creationTime }) => {
+const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, onUpdateTask, taskTitle, taskId, favorited, onFavoriteToggle, creationTime }) => {
   const { user } = useAuth(); 
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [reminder, setReminder] = useState<Date | string | null>(null);
@@ -87,34 +91,58 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
 
   const handleSetReminder = (value: string | Date) => {
     setReminder(value);
+    onUpdateTask(taskId, { reminder: value });
     setOpenPanel(null);
     saveToLocalStorage(value, dueDate, repeat);
   };
 
   const handleClearReminder = () => {
     setReminder(null);
+    onUpdateTask(taskId, { reminder: null });
     saveToLocalStorage(null, dueDate, repeat);
   };
 
   const handleSetDueDate = (value: string | null) => {
     setDueDate(value);
+    let dueDateValue: Date | undefined;
+    if (value) {
+      if (value === 'Today') {
+        dueDateValue = new Date();
+  } else if (value === 'Tomorrow') {
+    dueDateValue = new Date();
+    dueDateValue.setDate(dueDateValue.getDate() + 1);
+  } else if (value === 'Next week') {
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    dueDateValue = nextWeek;
+  } else {
+    const parsed = new Date(value);
+    dueDateValue = isNaN(parsed.getTime()) ? undefined : parsed;
+  }
+    } else {
+      dueDateValue = undefined;
+    }
+    onUpdateTask(taskId, { dueDate: dueDateValue });
     setOpenPanel(null);
     saveToLocalStorage(reminder, value, repeat);
   };
 
   const handleClearDueDate = () => {
     setDueDate(null);
+    onUpdateTask(taskId, { dueDate: undefined });
     saveToLocalStorage(reminder, null, repeat);
   };
 
   const handleSetRepeat = (value: string) => {
     setRepeat(value);
+    onUpdateTask(taskId, { repeat: value });
     setOpenPanel(null);
     saveToLocalStorage(reminder, dueDate, value);
   };
 
   const handleClearRepeat = () => {
     setRepeat(null);
+    onUpdateTask(taskId, { repeat: null });
     saveToLocalStorage(reminder, dueDate, null);
   };
 

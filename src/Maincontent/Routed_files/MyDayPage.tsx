@@ -7,35 +7,20 @@ import PageLayout from './PageLayout';
 import PageHeader from './PageHeader';
 import TaskList from './TaskList';
 import TaskBar from './TaskBar';
-
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
-  favorited: boolean;
-  dueDate?: Date;
-}
-
-interface PageHeaderProps {
-  pageTitle: string;
-  isMinimized: boolean;
-  handleToggleMinimize: () => void;
-  handleToggleSidebar: () => void;
-  setSortBy?: React.Dispatch<React.SetStateAction<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>>;
-  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
-}
+import { Task } from '../../App';
 
 interface MyDayPageProps {
   onTaskSelect: (task: Task) => void;
   tasks: Task[];
+  onUpdateTask: (id: string, updatedFields: Partial<Task>) => Promise<void>;
+  onDeleteTask: (id: string) => Promise<void>;
   isMinimized: boolean;
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
   handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
 }
 
-const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
+const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
   const { user } = useAuth();
   const { addTask, deleteTask, updateTask } = useTasks(user);
   const [newTaskText, setNewTaskText] = useState('');
@@ -51,7 +36,9 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized,
       case 'dueDate':
         sortedTasks.sort((a, b) => {
           if (a.dueDate && b.dueDate) {
-            return a.dueDate.getTime() - b.dueDate.getTime();
+            const dateA = a.dueDate instanceof Date ? a.dueDate.getTime() : new Date(a.dueDate).getTime();
+            const dateB = b.dueDate instanceof Date ? b.dueDate.getTime() : new Date(b.dueDate).getTime();
+            return dateA - dateB;
           }
           return a.dueDate ? -1 : 1;
         });
@@ -90,13 +77,13 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized,
 
   const handleFavoriteToggle = () => {
     if (selectedTask) {
-      updateTask(selectedTask.id, { favorited: !selectedTask.favorited });
-      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+      onUpdateTask(selectedTask.id, { favorited: !selectedTask.favorited });
+      setSelectedTask((prevTask: Task | null) => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
     }
   };
 
   const handleDeleteTask = (id: string) => {
-    deleteTask(id);
+    onDeleteTask(id);
     if (selectedTask?.id === id) {
       handleCloseTaskDetails();
     }
@@ -116,7 +103,7 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized,
         tasks={getSortedTasks}
         onTaskSelect={handleTaskSelect}
         pageName="My Day"
-        onUpdateTask={updateTask}
+        onUpdateTask={onUpdateTask}
       />
       <TaskBar
         newTaskText={newTaskText}
@@ -130,6 +117,7 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized,
           taskId={selectedTask.id}
           onClose={handleCloseTaskDetails}
           onDelete={handleDeleteTask}
+          onUpdateTask={onUpdateTask}
           favorited={selectedTask.favorited}
           onFavoriteToggle={handleFavoriteToggle}
           creationTime={selectedTask.createdAt}

@@ -8,35 +8,20 @@ import TaskBar from './TaskBar';
 import { useAuth } from './useAuth';
 import { useTasks } from './useTasks';
 import TaskDetails from './TaskDetails';
-
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
-  favorited: boolean;
-  dueDate?: Date;
-}
-
-interface PageHeaderProps {
-  pageTitle: string;
-  isMinimized: boolean;
-  handleToggleMinimize: () => void;
-  handleToggleSidebar: () => void;
-  setSortBy?: React.Dispatch<React.SetStateAction<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>>;
-  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
-}
+import { Task } from '../../App';
 
 interface TasksPageProps {
   onTaskSelect: (task: Task) => void;
   tasks: Task[];
+  onUpdateTask: (id: string, updatedFields: Partial<Task>) => Promise<void>;
+  onDeleteTask: (id: string) => Promise<void>;
   isMinimized: boolean;
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
   handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
 }
 
-const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
+const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
   const { user } = useAuth();
   const { addTask, deleteTask, updateTask } = useTasks(user);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -65,19 +50,17 @@ const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, isMinimized,
 
   const handleFavoriteToggle = () => {
     if (selectedTask) {
-      updateTask(selectedTask.id, { favorited: !selectedTask.favorited });
-      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+      onUpdateTask(selectedTask.id, { favorited: !selectedTask.favorited });
+      setSelectedTask((prevTask: Task | null) => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
     }
   };
 
   const handleDeleteTask = (id: string) => {
-    deleteTask(id);
+    onDeleteTask(id);
     if (selectedTask?.id === id) {
       handleCloseTaskDetails();
     }
   };
-
-  const allTasks = tasks;
 
   return (
     <PageLayout isMinimized={isMinimized}>
@@ -89,10 +72,10 @@ const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, isMinimized,
         handleThemeChange={handleThemeChange}
       />
       <TaskList
-        tasks={allTasks}
+        tasks={tasks}
         onTaskSelect={handleTaskSelect}
         pageName="Tasks"
-        onUpdateTask={updateTask}
+        onUpdateTask={onUpdateTask}
       />
       <TaskBar
         newTaskText={newTaskText}
@@ -106,6 +89,7 @@ const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, isMinimized,
           taskId={selectedTask.id}
           onClose={handleCloseTaskDetails}
           onDelete={handleDeleteTask}
+          onUpdateTask={onUpdateTask}
           favorited={selectedTask.favorited}
           onFavoriteToggle={handleFavoriteToggle}
           creationTime={selectedTask.createdAt}
