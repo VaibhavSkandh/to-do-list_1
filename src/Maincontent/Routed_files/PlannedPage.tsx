@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import PageLayout from './PageLayout';
+import PageHeader from './PageHeader';
+import TaskList from './TaskList';
+import TaskBar from './TaskBar';
+import { useAuth } from './useAuth';
+import { useTasks } from './useTasks';
+import TaskDetails from './TaskDetails';
 
-// Define the shape of the Task object
 interface Task {
   id: string;
   text: string;
@@ -10,18 +16,101 @@ interface Task {
   dueDate?: Date;
 }
 
-// Update the prop interface to accept the full Task object
-interface PlannedPageProps {
-  onTaskSelect: (task: Task) => void;
+interface PageHeaderProps {
+  pageTitle: string;
+  isMinimized: boolean;
+  handleToggleMinimize: () => void;
+  handleToggleSidebar: () => void;
+  setSortBy?: React.Dispatch<React.SetStateAction<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>>;
+  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
 }
 
-// Update the component to use the props interface and accept the prop
-const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect }) => {
+interface PlannedPageProps {
+  onTaskSelect: (task: Task) => void;
+  tasks: Task[];
+  isMinimized: boolean;
+  handleToggleMinimize: () => void;
+  handleToggleSidebar: () => void;
+  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
+  fontColor: string;
+}
+
+const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
+  const { user } = useAuth();
+  const { addTask, deleteTask, updateTask } = useTasks(user);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [newTaskText, setNewTaskText] = useState('');
+
+  const handleAddTask = () => {
+    if (newTaskText.trim() !== '') {
+      addTask(newTaskText);
+      setNewTaskText('');
+    }
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleAddTask();
+    }
+  };
+
+  const handleTaskSelect = (task: Task) => {
+    setSelectedTask(task);
+  };
+
+  const handleCloseTaskDetails = () => {
+    setSelectedTask(null);
+  };
+
+  const handleFavoriteToggle = () => {
+    if (selectedTask) {
+      updateTask(selectedTask.id, { favorited: !selectedTask.favorited });
+      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+    }
+  };
+
+  const handleDeleteTask = (id: string) => {
+    deleteTask(id);
+    if (selectedTask?.id === id) {
+      handleCloseTaskDetails();
+    }
+  };
+
+  const plannedTasks = tasks.filter(task => task.dueDate);
+
   return (
-    <div>
-      <h1>Planned Page</h1>
-      {/* Content for Planned page goes here */}
-    </div>
+    <PageLayout isMinimized={isMinimized}>
+      <PageHeader
+        pageTitle="Planned"
+        isMinimized={isMinimized}
+        handleToggleMinimize={handleToggleMinimize}
+        handleToggleSidebar={handleToggleSidebar}
+        handleThemeChange={handleThemeChange}
+      />
+      <TaskList
+        tasks={plannedTasks}
+        onTaskSelect={handleTaskSelect}
+        pageName="Planned"
+        onUpdateTask={updateTask}
+      />
+      <TaskBar
+        newTaskText={newTaskText}
+        setNewTaskText={setNewTaskText}
+        handleAddTask={handleAddTask}
+        handleKeyPress={handleKeyPress}
+      />
+      {selectedTask && (
+        <TaskDetails
+          taskTitle={selectedTask.text}
+          taskId={selectedTask.id}
+          onClose={handleCloseTaskDetails}
+          onDelete={handleDeleteTask}
+          favorited={selectedTask.favorited}
+          onFavoriteToggle={handleFavoriteToggle}
+          creationTime={selectedTask.createdAt}
+        />
+      )}
+    </PageLayout>
   );
 };
 

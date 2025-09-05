@@ -19,7 +19,7 @@ interface TaskDetailsProps {
 }
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle, taskId, favorited, onFavoriteToggle, creationTime }) => {
-  const { user } = useAuth(); // Correctly get the user from your custom hook
+  const { user } = useAuth(); 
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [reminder, setReminder] = useState<Date | string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
@@ -27,13 +27,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
   const [files, setFiles] = useState<{ name: string; url: string; }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Define a unique key for this task in local storage
   const localStorageKey = `taskDetails-${taskId}`;
 
   useEffect(() => {
     if (!user) return;
 
-    // Load files from Firestore
     const fetchFiles = async () => {
       try {
         const taskRef = doc(db, 'users', user.uid, 'tasks', taskId);
@@ -49,14 +47,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
       }
     };
     fetchFiles();
-
-    // Load data from localStorage on component mount
     const savedData = localStorage.getItem(localStorageKey);
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
         if (parsedData.reminder) {
-          // Check if the reminder is a Date string and convert it back to a Date object
           const isDateString = typeof parsedData.reminder === 'string' && !isNaN(new Date(parsedData.reminder).getTime());
           if (isDateString) {
             setReminder(new Date(parsedData.reminder));
@@ -72,13 +67,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, taskTitle,
         }
       } catch (e) {
         console.error("Failed to parse localStorage data:", e);
-        // Clear corrupt data to avoid future errors
         localStorage.removeItem(localStorageKey);
       }
     }
-  }, [user, taskId, localStorageKey]); // Depend on taskId and localStorageKey to re-run if the task changes
+  }, [user, taskId, localStorageKey]); 
 
-  // Helper function to save all values to localStorage
   const saveToLocalStorage = (newReminder: Date | string | null, newDueDate: string | null, newRepeat: string | null) => {
     const dataToSave = {
       reminder: newReminder instanceof Date ? newReminder.toISOString() : newReminder,

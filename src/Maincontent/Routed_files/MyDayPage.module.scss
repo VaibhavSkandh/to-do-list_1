@@ -1,16 +1,28 @@
 // src/Maincontent/Routed_files/MyDayPage.module.scss
+
+/* Define CSS variables with default values for theming */
+:root {
+  --font-color: #333;
+  --background-color: #f0f0f0;
+  --background-image: none;
+}
+
 .myDayLayout {
-  --font-color: white; // Default font color
-  display: flex;
-  flex-direction: column;
-  height: 95vh;
-  width: 100%;
-  padding: 2rem 3rem;
-  box-sizing: border-box;
-  color: var(--font-color); // Use CSS variable here
-  position: relative;
-  transition: all 0.5s ease-in-out;
-  font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 145vh;
+    padding: 2rem 3rem;
+    box-sizing: border-box;
+    /* Apply theme variables to the main layout */
+    color: var(--font-color);
+    background-color: var(--background-color);
+    background-image: var(--background-image);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    transition: all 0.5s ease-in-out;
+    font-family: "Segoe UI", sans-serif;
 }
 
 .minimized {
@@ -36,7 +48,6 @@
     padding: 0;
   }
 
-  // These elements should be hidden in the minimized state
   .taskList {
     display: none;
   }
@@ -56,6 +67,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: var(--font-color);
   }
   
   .headerLeft {
@@ -64,21 +76,21 @@
     align-items: center;
   }
   
-  // The title and date should be visible but with a smaller font
   .pageTitle {
     font-size: 1.2rem;
     margin-left: 0.5rem;
+    color: var(--font-color);
   }
 
   .date {
-    display: none; // Hide the date for a cleaner look
+    display: none;
   }
 
   .headerRight {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    position: initial; // Reset position
+    position: initial;
   }
 }
 
@@ -95,7 +107,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: -2rem 0rem 4rem -6rem;
+  margin: -2rem 3rem 4rem -4rem;
   flex-shrink: 0;
 }
 
@@ -108,12 +120,14 @@
   font-size: 1.8rem;
   font-weight: 500;
   margin: 0;
+  color: var(--font-color);
 }
 
 .date {
   font-size: 1rem;
   opacity: 0.8;
   margin-top: 0.25rem;
+  color: var(--font-color);
 }
 
 .headerRight {
@@ -127,7 +141,7 @@
 .headerIcon {
     background-color: #5c575745;
     border: none;
-    color: var(--font-color); // Use CSS variable here
+    color: var(--font-color);
     font-size: 1.5rem;
     cursor: pointer;
     opacity: 2;
@@ -135,6 +149,10 @@
     border-radius: 9px;
   &:hover {
     background-color: #5c5757;
+  }
+  
+  span {
+    color: var(--font-color);
   }
 }
 
@@ -151,7 +169,7 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  color: white; // Panel text is always white for contrast
+  color: var(--font-color);
 }
 
 .moreOption {
@@ -161,6 +179,7 @@
   cursor: pointer;
   border-radius: 8px;
   transition: background-color 0.2s;
+  color: var(--font-color);
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -171,6 +190,7 @@
   font-size: 1.25rem;
   margin-right: 1rem;
   opacity: 0.8;
+  color: var(--font-color);
 }
 
 .nestedPanel {
@@ -187,6 +207,7 @@
   cursor: pointer;
   border-radius: 8px;
   transition: background-color 0.2s;
+  color: var(--font-color);
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -309,9 +330,9 @@
   margin-top: auto;
   margin-left: 2rem;
   margin-right: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   flex-shrink: 0;
-  color: white; // Taskbar content is always white
+  color: var(--font-color);
 }
 
 .addButton {
@@ -332,12 +353,12 @@
   flex-grow: 1;
   background: none;
   border: none;
-  color: var(--font-color); // Updated to use CSS variable
+  color: var(--font-color);
   font-size: 1rem;
   outline: none;
   
   &::placeholder {
-    color: var(--font-color); // Updated to use CSS variable
+    color: var(--font-color);
     opacity: 0.5;
   }
 }
@@ -355,6 +376,7 @@
   font-size: 1.2rem;
   opacity: 0.7;
   transition: opacity 0.2s;
+  color: var(--font-color);
 
   &:hover {
     opacity: 1;

@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import PageLayout from './PageLayout';
+import PageHeader from './PageHeader';
+import TaskList from './TaskList';
+import TaskBar from './TaskBar';
+import { useAuth } from './useAuth';
+import { useTasks } from './useTasks';
+import TaskDetails from './TaskDetails';
 
-// Define the shape of the Task object
 interface Task {
   id: string;
   text: string;
@@ -10,29 +16,101 @@ interface Task {
   dueDate?: Date;
 }
 
-// Update the prop interface to accept the full Task object and a list of tasks
+interface PageHeaderProps {
+  pageTitle: string;
+  isMinimized: boolean;
+  handleToggleMinimize: () => void;
+  handleToggleSidebar: () => void;
+  setSortBy?: React.Dispatch<React.SetStateAction<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>>;
+  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
+}
+
 interface ImportantPageProps {
   onTaskSelect: (task: Task) => void;
   tasks: Task[];
+  isMinimized: boolean;
+  handleToggleMinimize: () => void;
+  handleToggleSidebar: () => void;
+  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
+  fontColor: string;
 }
 
-// Update the component to use the props interface and accept the prop
-const ImportantPage: React.FC<ImportantPageProps> = ({ onTaskSelect, tasks }) => {
+const ImportantPage: React.FC<ImportantPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
+  const { user } = useAuth();
+  const { addTask, deleteTask, updateTask } = useTasks(user);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [newTaskText, setNewTaskText] = useState('');
+
+  const handleAddTask = () => {
+    if (newTaskText.trim() !== '') {
+      addTask(newTaskText);
+      setNewTaskText('');
+    }
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleAddTask();
+    }
+  };
+
+  const handleTaskSelect = (task: Task) => {
+    setSelectedTask(task);
+  };
+
+  const handleCloseTaskDetails = () => {
+    setSelectedTask(null);
+  };
+
+  const handleFavoriteToggle = () => {
+    if (selectedTask) {
+      updateTask(selectedTask.id, { favorited: !selectedTask.favorited });
+      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+    }
+  };
+
+  const handleDeleteTask = (id: string) => {
+    deleteTask(id);
+    if (selectedTask?.id === id) {
+      handleCloseTaskDetails();
+    }
+  };
+
+  const importantTasks = tasks.filter(task => task.favorited);
+
   return (
-    <div>
-      <h1>Important Page</h1>
-      {tasks.length > 0 ? (
-        tasks.map(task => (
-          <div key={task.id} onClick={() => onTaskSelect(task)}>
-            <p style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
-              {task.text}
-            </p>
-          </div>
-        ))
-      ) : (
-        <p>No important tasks.</p>
+    <PageLayout isMinimized={isMinimized}>
+      <PageHeader
+        pageTitle="Important"
+        isMinimized={isMinimized}
+        handleToggleMinimize={handleToggleMinimize}
+        handleToggleSidebar={handleToggleSidebar}
+        handleThemeChange={handleThemeChange}
+      />
+      <TaskList
+        tasks={importantTasks}
+        onTaskSelect={handleTaskSelect}
+        pageName="Important"
+        onUpdateTask={updateTask}
+      />
+      <TaskBar
+        newTaskText={newTaskText}
+        setNewTaskText={setNewTaskText}
+        handleAddTask={handleAddTask}
+        handleKeyPress={handleKeyPress}
+      />
+      {selectedTask && (
+        <TaskDetails
+          taskTitle={selectedTask.text}
+          taskId={selectedTask.id}
+          onClose={handleCloseTaskDetails}
+          onDelete={handleDeleteTask}
+          favorited={selectedTask.favorited}
+          onFavoriteToggle={handleFavoriteToggle}
+          creationTime={selectedTask.createdAt}
+        />
       )}
-    </div>
+    </PageLayout>
   );
 };
 
