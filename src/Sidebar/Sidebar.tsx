@@ -65,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiv
                   onClick={() => handleNavigation(item)}
                 >
                   <span className={`material-icons ${styles.navIcon}`}>{item.icon}</span>
-                  {!isMinimized && <span className={styles.navText}>{item.text}</span>} {/* Conditionally render text */}
+                  {!isMinimized && <span className={styles.navText}>{item.text}</span>}
                 </button>
               </li>
             ))}
@@ -75,11 +75,11 @@ const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiv
         <div className={styles.bottomActions}>
           <button className={styles.newListButton}>
             <span className="material-icons">add</span>
-            {!isMinimized && <span>New list</span>} {/* Conditionally render text */}
+            {!isMinimized && <span>New list</span>}
           </button>
           <button onClick={onSignOut} className={styles.signOutButton}>
             <span className="material-icons">logout</span>
-            {!isMinimized && <span>Sign Out</span>} {/* Conditionally render text */}
+            {!isMinimized && <span>Sign Out</span>}
           </button>
         </div>
       </aside>

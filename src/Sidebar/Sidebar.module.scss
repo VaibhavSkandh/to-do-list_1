@@ -196,7 +196,7 @@ ul {
     padding: 0.3rem;
     margin-bottom: 1rem;
     input {
-      display: none; // Hide the search input field
+      display: none;
     }
   }
 
@@ -209,13 +209,13 @@ ul {
   }
 
   .navText {
-    display: none; // Hide the text
+    display: none;
   }
 
   .bottomActions {
     padding: 0.2rem;
     .newListButton, .signOutButton {
-      span:last-child { // Selects the text
+      span:last-child {
         display: none;
       }
     }
