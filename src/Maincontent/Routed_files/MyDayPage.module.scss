@@ -1,10 +1,8 @@
-// src/Maincontent/Routed_files/MyDayPage.module.scss
 
-/* Define CSS variables with default values for theming */
 :root {
-  --font-color: #333;
-  --background-color: #f0f0f0;
-  --background-image: none;
+  --font-color: white;
+  --background-color:black;
+  --background-image:none;
 }
 
 .myDayLayout {
@@ -14,7 +12,6 @@
     width: 145vh;
     padding: 2rem 3rem;
     box-sizing: border-box;
-    /* Apply theme variables to the main layout */
     color: var(--font-color);
     background-color: var(--background-color);
     background-image: var(--background-image);
@@ -107,7 +104,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: -2rem 3rem 4rem -4rem;
+  margin: 0rem 3rem 2rem 0rem;
   flex-shrink: 0;
 }
 
@@ -135,7 +132,7 @@
   align-items: center;
   gap: 1rem;
   position: relative;
-  right:-14vh;
+  right:-10vh;
 }
 
 .headerIcon {
@@ -253,7 +250,7 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     width: 114vb;
     cursor: pointer;
-    background-color: #26242469;
+    background-color: rgb(15 15 15 / 74%);;
     margin: 1vh 0vh;
     border-radius: 9px;
 }
@@ -333,6 +330,8 @@
   margin-bottom: 1rem;
   flex-shrink: 0;
   color: var(--font-color);
+  border-bottom: 1px solid white;
+  border-top: 1px solid darkslategrey;
 }
 
 .addButton {
