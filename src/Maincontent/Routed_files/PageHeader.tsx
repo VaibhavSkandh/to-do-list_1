@@ -1,7 +1,11 @@
-// src/Maincontent/Routed_files/PageHeader.tsx
-
 import React, { useState } from 'react';
 import styles from './MyDayPage.module.scss';
+
+import image2 from '../Routed_files/images/pexels-bri-schneiter-28802-346529.jpg';
+import image3 from '../Routed_files/images/pexels-maxfrancis-2246476.jpg';
+import image4 from '../Routed_files/images/pexels-pixabay-268533.jpg';
+import image5 from '../Routed_files/images/pexels-quang-nguyen-vinh-222549-2166711.jpg';
+
 
 interface PageHeaderProps {
   pageTitle: string;
@@ -28,11 +32,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({ pageTitle, isMinimized, handleT
   ];
 
   const themeBackgrounds = [
-    'src/images/image.png',
-    'src/images/pexels-bri-schneiter-28802-346529.jpg',
-    'src/images/pexels-maxfrancis-2246476.jpg',
-    'src/images/pexels-pixabay-268533.jpg',
-    'src/images/pexels-quang-nguyen-vinh-222549-2166711.jpg',
+    image2,
+    image3,
+    image4,
+    image5,
   ];
 
   const updateTheme = (theme: { backgroundColor?: string; backgroundImage?: string; fontColor?: string }) => {

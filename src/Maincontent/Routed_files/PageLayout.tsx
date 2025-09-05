@@ -9,9 +9,7 @@ interface PageLayoutProps {
 const PageLayout: React.FC<PageLayoutProps> = ({ children, isMinimized }) => {
   return (
     <div className={`${styles.myDayLayout} ${isMinimized ? styles.minimized : ''}`}>
-      <div className={styles.myDayContainer}>
-        {children}
-      </div>
+      {children}
     </div>
   );
 };

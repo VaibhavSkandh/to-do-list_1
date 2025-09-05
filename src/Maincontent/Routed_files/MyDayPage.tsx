@@ -1,5 +1,3 @@
-// src/Maincontent/Routed_files/MyDayPage.tsx
-
 import React, { useState, useMemo } from 'react';
 import styles from './MyDayPage.module.scss';
 import { useAuth } from './useAuth';
