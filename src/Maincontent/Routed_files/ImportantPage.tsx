@@ -1,3 +1,5 @@
+// src/Maincontent/Routed_files/ImportantPage.tsx
+
 import React, { useState } from 'react';
 import PageLayout from './PageLayout';
 import PageHeader from './PageHeader';
@@ -32,7 +34,6 @@ interface ImportantPageProps {
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
   handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
-  fontColor: string;
 }
 
 const ImportantPage: React.FC<ImportantPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {

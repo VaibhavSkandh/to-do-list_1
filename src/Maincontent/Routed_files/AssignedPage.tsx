@@ -1,3 +1,5 @@
+// src/Maincontent/Routed_files/AssignedPage.tsx
+
 import React, { useState } from 'react';
 import PageLayout from './PageLayout';
 import PageHeader from './PageHeader';
@@ -22,7 +24,6 @@ interface PageHeaderProps {
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
   setSortBy?: React.Dispatch<React.SetStateAction<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>>;
-  currentBackground: string;
   handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
   fontColor: string;
 }
@@ -34,7 +35,6 @@ interface AssignedPageProps {
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
   handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
-  fontColor: string;
 }
 
 const AssignedPage: React.FC<AssignedPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {

@@ -1,3 +1,5 @@
+// src/Maincontent/Routed_files/TasksPage.tsx
+
 import React, { useState } from 'react';
 import PageLayout from './PageLayout';
 import PageHeader from './PageHeader';
@@ -32,7 +34,6 @@ interface TasksPageProps {
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
   handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
-  fontColor: string;
 }
 
 const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {

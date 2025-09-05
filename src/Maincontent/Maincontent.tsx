@@ -1,3 +1,5 @@
+// src/Maincontent/Maincontent.tsx
+
 import React, { useState } from "react";
 import styles from "./Maincontent.module.scss";
 import { Routes, Route } from "react-router-dom";
@@ -69,22 +71,16 @@ const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, tasks, isMinimi
   const assignedTasks = tasks.filter(task => false);
   const allTasks = tasks;
 
-  const mainStyle = {
-    backgroundImage: theme.backgroundImage ? `url(${theme.backgroundImage})` : 'none',
-    backgroundColor: theme.backgroundColor || 'transparent',
-    color: theme.fontColor || '#000000'
-  };
-
   return (
     <main className={styles.mainContentContainer}>
-      <div className={styles.mainContainer} style={mainStyle}>
-        <div className={styles.taskContainer} style={mainStyle}>
+      <div className={styles.mainContainer}>
+        <div className={styles.taskContainer}>
           <Routes>
-            <Route path="/" element={<MyDayPage onTaskSelect={onTaskSelect} tasks={tasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} fontColor={theme.fontColor} currentBackground={theme.backgroundImage || theme.backgroundColor}/>} />
-            <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} tasks={favoritedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} fontColor={theme.fontColor} />} />
-            <Route path="/planned" element={<PlannedPage onTaskSelect={onTaskSelect} tasks={plannedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} fontColor={theme.fontColor} />} />
-            <Route path="/assigned" element={<AssignedPage onTaskSelect={onTaskSelect} tasks={assignedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} fontColor={theme.fontColor} />} />
-            <Route path="/tasks" element={<TasksPage onTaskSelect={onTaskSelect} tasks={allTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} fontColor={theme.fontColor} />} />
+            <Route path="/" element={<MyDayPage onTaskSelect={onTaskSelect} tasks={tasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/important" element={<ImportantPage onTaskSelect={onTaskSelect} tasks={favoritedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/planned" element={<PlannedPage onTaskSelect={onTaskSelect} tasks={plannedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/assigned" element={<AssignedPage onTaskSelect={onTaskSelect} tasks={assignedTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
+            <Route path="/tasks" element={<TasksPage onTaskSelect={onTaskSelect} tasks={allTasks} isMinimized={isMinimized} handleToggleMinimize={handleToggleMinimize} handleToggleSidebar={handleToggleSidebar} handleThemeChange={handleThemeChange} />} />
           </Routes>
         </div>
       </div>
