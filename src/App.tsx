@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./Sidebar/Sidebar";
@@ -10,18 +11,20 @@ import { useTasks } from './Maincontent/Routed_files/useTasks';
 import { User } from "firebase/auth";
 import PrivateRoute from "./Maincontent/Routed_files/PrivateRoute";
 
-interface Task {
+export interface Task {
   id: string;
   text: string;
   completed: boolean;
   createdAt: Date;
   favorited: boolean;
-  dueDate?: Date;
+  dueDate?: string | Date | null;
+  reminder?: Date | string | null;
+  repeat?: string | null;
 }
 
 const App: React.FC = () => {
   const { user, loading, signInWithGoogle, handleSignOut } = useAuth();
-  const { tasks, deleteTask } = useTasks(user);
+  const { tasks, addTask, deleteTask, updateTask } = useTasks(user);
   const [activeItem, setActiveItem] = useState("my-day");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -43,6 +46,34 @@ const App: React.FC = () => {
     if (user) {
       await deleteTask(id);
       setSelectedTask(null);
+    }
+  };
+
+  const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
+    if (user) {
+      let sanitizedDueDate: Date | undefined;
+      // If the dueDate exists and is not null or an empty string, create a new Date object
+      if (updatedFields.dueDate && (updatedFields.dueDate instanceof Date || typeof updatedFields.dueDate === 'string')) {
+        sanitizedDueDate = new Date(updatedFields.dueDate);
+      }
+
+      let sanitizedReminder: Date | undefined;
+      // If the reminder exists and is not null or an empty string, create a new Date object
+      if (updatedFields.reminder && (updatedFields.reminder instanceof Date || typeof updatedFields.reminder === 'string')) {
+        sanitizedReminder = new Date(updatedFields.reminder);
+      }
+
+      const sanitizedFields: Partial<Task> = {
+        ...updatedFields,
+        dueDate: sanitizedDueDate,
+        reminder: sanitizedReminder,
+      };
+
+      await updateTask(id, sanitizedFields);
+      setSelectedTask(prevTask => {
+        if (!prevTask) return null;
+        return prevTask.id === id ? { ...prevTask, ...sanitizedFields } : prevTask;
+      });
     }
   };
 
@@ -74,6 +105,8 @@ const App: React.FC = () => {
                 <MainContent
                   onTaskSelect={handleTaskSelect}
                   tasks={tasks}
+                  onUpdateTask={handleUpdateTask}
+                  onDeleteTask={handleDeleteTask}
                   isMinimized={isMinimized}
                   handleToggleMinimize={handleToggleMinimize}
                   handleToggleSidebar={handleToggleSidebar}
@@ -85,6 +118,7 @@ const App: React.FC = () => {
                     taskId={selectedTask.id}
                     onClose={handleCloseDetails}
                     onDelete={handleDeleteTask}
+                    onUpdateTask={handleUpdateTask}
                     favorited={selectedTask.favorited}
                     onFavoriteToggle={() => {}}
                     creationTime={selectedTask.createdAt}

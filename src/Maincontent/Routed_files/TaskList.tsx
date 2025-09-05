@@ -2,15 +2,7 @@ import React from 'react';
 import styles from './MyDayPage.module.scss';
 import { useAuth } from './useAuth';
 import { useTasks } from './useTasks';
-
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
-  favorited: boolean;
-  dueDate?: Date;
-}
+import { Task } from '../../App';
 
 interface TaskListProps {
   tasks: Task[];
