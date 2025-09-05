@@ -1,4 +1,4 @@
-// PageHeader.tsx
+// src/Maincontent/Routed_files/PageHeader.tsx
 
 import React, { useState } from 'react';
 import styles from './MyDayPage.module.scss';
@@ -35,7 +35,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ pageTitle, isMinimized, handleT
     'src/images/pexels-quang-nguyen-vinh-222549-2166711.jpg',
   ];
 
-  // Function to update CSS variables on the root element
   const updateTheme = (theme: { backgroundColor?: string; backgroundImage?: string; fontColor?: string }) => {
     const root = document.documentElement;
 
@@ -51,7 +50,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ pageTitle, isMinimized, handleT
       root.style.setProperty('--background-color', 'transparent');
     }
     
-    // Call the parent handler to update state if necessary
     handleThemeChange(theme);
   };
 

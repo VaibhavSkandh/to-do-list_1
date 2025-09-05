@@ -1,3 +1,5 @@
+// src/Maincontent/Routed_files/MyDayPage.tsx
+
 import React, { useState, useMemo } from 'react';
 import styles from './MyDayPage.module.scss';
 import { useAuth } from './useAuth';
@@ -28,16 +30,14 @@ interface PageHeaderProps {
 
 interface MyDayPageProps {
   onTaskSelect: (task: Task) => void;
-  tasks: Task[]; // Added tasks prop
+  tasks: Task[];
   isMinimized: boolean;
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
   handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
-  currentBackground: string;
-  fontColor: string;
 }
 
-const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange, currentBackground }) => {
+const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
   const { user } = useAuth();
   const { addTask, deleteTask, updateTask } = useTasks(user);
   const [newTaskText, setNewTaskText] = useState('');
@@ -142,4 +142,3 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, isMinimized,
 };
 
 export default MyDayPage;
-
