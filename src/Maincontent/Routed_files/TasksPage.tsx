@@ -23,7 +23,7 @@ interface TasksPageProps {
 
 const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
   const { user } = useAuth();
-  const { addTask, deleteTask, updateTask } = useTasks(user);
+  const { addTask } = useTasks(user);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [newTaskText, setNewTaskText] = useState('');
 
@@ -48,10 +48,24 @@ const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, onUpdateTask
     setSelectedTask(null);
   };
 
-  const handleFavoriteToggle = () => {
+  const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
+    const updatedData: Partial<Task> = { ...updatedFields };
+    if (updatedData.dueDate && typeof updatedData.dueDate === 'string' && isNaN(new Date(updatedData.dueDate).getTime())) {
+      console.error('Invalid dueDate value:', updatedData.dueDate);
+      delete updatedData.dueDate;
+    }
+    if (updatedData.reminder && typeof updatedData.reminder === 'string' && isNaN(new Date(updatedData.reminder).getTime())) {
+      console.error('Invalid reminder value:', updatedData.reminder);
+      delete updatedData.reminder;
+    }
+    await onUpdateTask(id, updatedData);
+  };
+
+  const handleFavoriteToggle = async () => {
     if (selectedTask) {
-      onUpdateTask(selectedTask.id, { favorited: !selectedTask.favorited });
-      setSelectedTask((prevTask: Task | null) => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+      const updatedFavorited = !selectedTask.favorited;
+      await handleUpdateTask(selectedTask.id, { favorited: updatedFavorited });
+      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: updatedFavorited } : null);
     }
   };
 
@@ -75,7 +89,7 @@ const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, onUpdateTask
         tasks={tasks}
         onTaskSelect={handleTaskSelect}
         pageName="Tasks"
-        onUpdateTask={onUpdateTask}
+        onUpdateTask={handleUpdateTask}
       />
       <TaskBar
         newTaskText={newTaskText}
@@ -89,7 +103,7 @@ const TasksPage: React.FC<TasksPageProps> = ({ onTaskSelect, tasks, onUpdateTask
           taskId={selectedTask.id}
           onClose={handleCloseTaskDetails}
           onDelete={handleDeleteTask}
-          onUpdateTask={onUpdateTask}
+          onUpdateTask={handleUpdateTask}
           favorited={selectedTask.favorited}
           onFavoriteToggle={handleFavoriteToggle}
           creationTime={selectedTask.createdAt}

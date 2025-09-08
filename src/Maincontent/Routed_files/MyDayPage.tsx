@@ -1,3 +1,5 @@
+// src/Maincontent/Routed_files/MyDayPage.tsx
+
 import React, { useState, useMemo } from 'react';
 import styles from './MyDayPage.module.scss';
 import { useAuth } from './useAuth';
@@ -22,7 +24,7 @@ interface MyDayPageProps {
 
 const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
   const { user } = useAuth();
-  const { addTask, deleteTask, updateTask } = useTasks(user);
+  const { addTask } = useTasks(user);
   const [newTaskText, setNewTaskText] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [sortBy, setSortBy] = useState<'importance' | 'dueDate' | 'alphabetically' | 'creationDate'>('creationDate');
@@ -35,12 +37,9 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, onUpdateTask
         break;
       case 'dueDate':
         sortedTasks.sort((a, b) => {
-          if (a.dueDate && b.dueDate) {
-            const dateA = a.dueDate instanceof Date ? a.dueDate.getTime() : new Date(a.dueDate).getTime();
-            const dateB = b.dueDate instanceof Date ? b.dueDate.getTime() : new Date(b.dueDate).getTime();
-            return dateA - dateB;
-          }
-          return a.dueDate ? -1 : 1;
+          const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+          const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+          return dateA - dateB;
         });
         break;
       case 'alphabetically':
@@ -75,10 +74,24 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, onUpdateTask
     setSelectedTask(null);
   };
 
-  const handleFavoriteToggle = () => {
+  const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
+    const updatedData: Partial<Task> = { ...updatedFields };
+    if (updatedData.dueDate && typeof updatedData.dueDate === 'string' && isNaN(new Date(updatedData.dueDate).getTime())) {
+      console.error('Invalid dueDate value:', updatedData.dueDate);
+      delete updatedData.dueDate;
+    }
+    if (updatedData.reminder && typeof updatedData.reminder === 'string' && isNaN(new Date(updatedData.reminder).getTime())) {
+      console.error('Invalid reminder value:', updatedData.reminder);
+      delete updatedData.reminder;
+    }
+    await onUpdateTask(id, updatedData);
+  };
+
+  const handleFavoriteToggle = async () => {
     if (selectedTask) {
-      onUpdateTask(selectedTask.id, { favorited: !selectedTask.favorited });
-      setSelectedTask((prevTask: Task | null) => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+      const updatedFavorited = !selectedTask.favorited;
+      await handleUpdateTask(selectedTask.id, { favorited: updatedFavorited });
+      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: updatedFavorited } : null);
     }
   };
 
@@ -103,7 +116,7 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, onUpdateTask
         tasks={getSortedTasks}
         onTaskSelect={handleTaskSelect}
         pageName="My Day"
-        onUpdateTask={onUpdateTask}
+        onUpdateTask={handleUpdateTask}
       />
       <TaskBar
         newTaskText={newTaskText}
@@ -117,7 +130,7 @@ const MyDayPage: React.FC<MyDayPageProps> = ({ onTaskSelect, tasks, onUpdateTask
           taskId={selectedTask.id}
           onClose={handleCloseTaskDetails}
           onDelete={handleDeleteTask}
-          onUpdateTask={onUpdateTask}
+          onUpdateTask={handleUpdateTask}
           favorited={selectedTask.favorited}
           onFavoriteToggle={handleFavoriteToggle}
           creationTime={selectedTask.createdAt}
