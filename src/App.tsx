@@ -1,4 +1,5 @@
 // src/App.tsx
+
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./Sidebar/Sidebar";
@@ -49,33 +50,15 @@ const App: React.FC = () => {
     }
   };
 
-  const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
-    if (user) {
-      let sanitizedDueDate: Date | undefined;
-      // If the dueDate exists and is not null or an empty string, create a new Date object
-      if (updatedFields.dueDate && (updatedFields.dueDate instanceof Date || typeof updatedFields.dueDate === 'string')) {
-        sanitizedDueDate = new Date(updatedFields.dueDate);
-      }
-
-      let sanitizedReminder: Date | undefined;
-      // If the reminder exists and is not null or an empty string, create a new Date object
-      if (updatedFields.reminder && (updatedFields.reminder instanceof Date || typeof updatedFields.reminder === 'string')) {
-        sanitizedReminder = new Date(updatedFields.reminder);
-      }
-
-      const sanitizedFields: Partial<Task> = {
-        ...updatedFields,
-        dueDate: sanitizedDueDate,
-        reminder: sanitizedReminder,
-      };
-
-      await updateTask(id, sanitizedFields);
-      setSelectedTask(prevTask => {
-        if (!prevTask) return null;
-        return prevTask.id === id ? { ...prevTask, ...sanitizedFields } : prevTask;
-      });
-    }
-  };
+const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
+  if (user) {
+    await updateTask(id, updatedFields);
+    setSelectedTask(prevTask => {
+      if (!prevTask) return null;
+      return prevTask.id === id ? { ...prevTask, ...updatedFields } : prevTask;
+    });
+  }
+};
 
   const handleToggleMinimize = () => {
     setIsMinimized(!isMinimized);
