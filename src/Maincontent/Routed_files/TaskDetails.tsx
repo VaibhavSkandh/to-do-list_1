@@ -127,11 +127,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ onClose, onDelete, onUpdateTa
     saveToLocalStorage(reminder, value, repeat);
   };
 
-  const handleClearDueDate = () => {
-    setDueDate(null);
-    onUpdateTask(taskId, { dueDate: undefined });
-    saveToLocalStorage(reminder, null, repeat);
-  };
+ const handleClearDueDate = () => {
+  setDueDate(null);
+  onUpdateTask(taskId, { dueDate: null });
+  saveToLocalStorage(reminder, null, repeat);
+};
 
   const handleSetRepeat = (value: string) => {
     setRepeat(value);

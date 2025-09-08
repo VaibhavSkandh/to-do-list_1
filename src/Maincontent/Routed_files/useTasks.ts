@@ -1,6 +1,6 @@
 // src/hooks/useTasks.ts
 import { useState, useEffect } from 'react';
-import { collection, addDoc, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { db } from '../../firebase';
 import { Task } from '../../App';
@@ -51,6 +51,8 @@ export const useTasks = (user: User | null) => {
         completed: false,
         favorited: false,
         createdAt: new Date(),
+        dueDate: null,
+        reminder: null,
       });
     } catch (error) {
       console.error('Error adding document: ', error);
@@ -68,16 +70,20 @@ export const useTasks = (user: User | null) => {
 
   const updateTask = async (id: string, updatedFields: Partial<Task>) => {
     if (!user) return;
-    try {
-      // Filter out any undefined or null values to prevent Firebase errors
-      const validUpdates = Object.fromEntries(
-        Object.entries(updatedFields).filter(([_, value]) => value !== undefined && value !== null)
-      );
 
-      await updateDoc(doc(db, `users/${user.uid}/tasks`, id), validUpdates);
-    } catch (error) {
-      console.error("Error updating task: ", error);
-      throw error;
+    const updates: { [key: string]: any } = {};
+
+    for (const key in updatedFields) {
+      const value = updatedFields[key as keyof Partial<Task>];
+      if (value === null) {
+        updates[key] = deleteField();
+      } else if (value !== undefined) {
+        updates[key] = value;
+      }
+    }
+    
+    if (Object.keys(updates).length > 0) {
+      await updateDoc(doc(db, `users/${user.uid}/tasks`, id), updates);
     }
   };
 

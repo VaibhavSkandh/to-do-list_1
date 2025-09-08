@@ -1,3 +1,5 @@
+// src/Maincontent/Routed_files/PlannedPage.tsx
+
 import React, { useState } from 'react';
 import PageLayout from './PageLayout';
 import PageHeader from './PageHeader';
@@ -21,10 +23,10 @@ interface PlannedPageProps {
 
 const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
   const { user } = useAuth();
-  const { addTask, deleteTask, updateTask } = useTasks(user);
+  const { addTask } = useTasks(user);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [newTaskText, setNewTaskText] = useState('');
-  
+
   const handleAddTask = () => {
     if (newTaskText.trim() !== '') {
       addTask(newTaskText);
@@ -46,10 +48,24 @@ const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdate
     setSelectedTask(null);
   };
 
-  const handleFavoriteToggle = () => {
+  const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
+    const updatedData: Partial<Task> = { ...updatedFields };
+    if (updatedData.dueDate && typeof updatedData.dueDate === 'string' && isNaN(new Date(updatedData.dueDate).getTime())) {
+      console.error('Invalid dueDate value:', updatedData.dueDate);
+      delete updatedData.dueDate;
+    }
+    if (updatedData.reminder && typeof updatedData.reminder === 'string' && isNaN(new Date(updatedData.reminder).getTime())) {
+      console.error('Invalid reminder value:', updatedData.reminder);
+      delete updatedData.reminder;
+    }
+    await onUpdateTask(id, updatedData);
+  };
+
+  const handleFavoriteToggle = async () => {
     if (selectedTask) {
-      onUpdateTask(selectedTask.id, { favorited: !selectedTask.favorited });
-      setSelectedTask((prevTask: Task | null) => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+      const updatedFavorited = !selectedTask.favorited;
+      await handleUpdateTask(selectedTask.id, { favorited: updatedFavorited });
+      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: updatedFavorited } : null);
     }
   };
 
@@ -60,7 +76,6 @@ const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdate
     }
   };
 
-  console.log('All tasks received in PlannedPage:', tasks);
   const plannedTasks = tasks.filter(task => task.dueDate || task.reminder);
 
   return (
@@ -76,7 +91,7 @@ const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdate
         tasks={plannedTasks}
         onTaskSelect={handleTaskSelect}
         pageName="Planned"
-        onUpdateTask={onUpdateTask}
+        onUpdateTask={handleUpdateTask}
       />
       <TaskBar
         newTaskText={newTaskText}
@@ -90,7 +105,7 @@ const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdate
           taskId={selectedTask.id}
           onClose={handleCloseTaskDetails}
           onDelete={handleDeleteTask}
-          onUpdateTask={onUpdateTask}
+          onUpdateTask={handleUpdateTask}
           favorited={selectedTask.favorited}
           onFavoriteToggle={handleFavoriteToggle}
           creationTime={selectedTask.createdAt}
