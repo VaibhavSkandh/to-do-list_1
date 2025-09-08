@@ -59,7 +59,12 @@ const MainContent: React.FC<MainContentProps> = ({ onTaskSelect, tasks, onUpdate
   };
 
   const favoritedTasks = tasks.filter(task => task.favorited);
-  const plannedTasks = tasks.filter(task => task.dueDate || task.reminder);
+const plannedTasks = tasks.filter(
+  task =>
+    (task.dueDate !== null && task.dueDate !== undefined && task.dueDate !== '') ||
+    (task.reminder !== null && task.reminder !== undefined && task.reminder !== '')
+);
+
   const assignedTasks = tasks.filter(task => task.text.includes('@'));
   const allTasks = tasks;
 
