@@ -1,8 +1,8 @@
-import React from 'react';
-import styles from './MyDayPage.module.scss';
-import { useAuth } from './useAuth';
-import { useTasks } from './useTasks';
-import { Task } from '../../App';
+import React from "react";
+import styles from "../../pages/MyDayPage.module.scss";
+import { useAuth } from "../../hooks/useAuth";
+import { useTasks } from "../../hooks/useTasks";
+import { Task } from "../../App";
 
 interface TaskListProps {
   tasks: Task[];
@@ -11,7 +11,12 @@ interface TaskListProps {
   onUpdateTask?: (taskId: string, update: Partial<Task>) => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskSelect, pageName, onUpdateTask }) => {
+const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  onTaskSelect,
+  pageName,
+  onUpdateTask,
+}) => {
   const { user } = useAuth();
   const { loading, updateTask } = useTasks(user);
 
@@ -28,10 +33,22 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskSelect, pageName, onUp
             className={styles.taskItem}
             onClick={() => onTaskSelect(task)}
           >
-            <div className={`${styles.circleCheckbox} ${task.completed ? styles.completed : ''}`}>
-              {task.completed && <span className={`${styles.checkIcon} material-icons`}>check</span>}
+            <div
+              className={`${styles.circleCheckbox} ${
+                task.completed ? styles.completed : ""
+              }`}
+            >
+              {task.completed && (
+                <span className={`${styles.checkIcon} material-icons`}>
+                  check
+                </span>
+              )}
             </div>
-            <span className={`${styles.taskText} ${task.completed ? styles.completed : ''}`}>
+            <span
+              className={`${styles.taskText} ${
+                task.completed ? styles.completed : ""
+              }`}
+            >
               {task.text}
             </span>
             <button
@@ -45,7 +62,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskSelect, pageName, onUp
                 }
               }}
             >
-              <span className={`${styles.starIcon} material-icons ${task.favorited ? styles.favorited : ''}`}>
+              <span
+                className={`${styles.starIcon} material-icons ${
+                  task.favorited ? styles.favorited : ""
+                }`}
+              >
                 star
               </span>
             </button>
@@ -54,7 +75,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskSelect, pageName, onUp
       ) : (
         <div className={styles.focusCard}>
           <span className={styles.focusCardIcon}>
-            {pageName === 'My Day' ? '☀️' : pageName === 'Important' ? '⭐' : '📋'}
+            {pageName === "My Day"
+              ? "☀️"
+              : pageName === "Important"
+              ? "⭐"
+              : "📋"}
           </span>
           <h2 className={styles.focusCardTitle}>You're all caught up!</h2>
           <p className={styles.focusCardText}>Add some tasks to get started.</p>

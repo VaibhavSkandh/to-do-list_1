@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../TaskDetails.module.scss';
+import styles from '../components/Task/TaskDetails/TaskDetails.module.scss';
 
 interface RepeatProps {
   onSetRepeat: (value: string) => void;

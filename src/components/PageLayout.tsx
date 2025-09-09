@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './MyDayPage.module.scss';
+import styles from './Task/TaskDetails/TaskDetails.module.scss';
 
 interface PageLayoutProps {
   children: React.ReactNode;

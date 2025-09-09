@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, useEffect } from 'react';
-import styles from '../TaskDetails.module.scss';
+import styles from '../components/Task/TaskDetails/TaskDetails.module.scss';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 

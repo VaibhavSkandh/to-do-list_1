@@ -1,7 +1,7 @@
 // hooks/useAuth.ts
 import { useState, useEffect } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
-import { auth, db } from '../../firebase'; // Import auth and db from firebase.ts
+import { auth, db } from '../firebase'; // Import auth and db from firebase.ts
 
 interface AuthHookResult {
   user: User | null;

@@ -111,6 +111,9 @@
 .headerLeft {
   display: flex;
   flex-direction: column;
+  position: relative;
+  top: 10px;
+  left: 23px;
 }
 
 .pageTitle {
@@ -132,7 +135,7 @@
   align-items: center;
   gap: 1rem;
   position: relative;
-  right:-10vh;
+  right:-5vh;
 }
 
 .headerIcon {
@@ -234,6 +237,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  color:white;
 }
 
 .noTasksMessage {
@@ -332,6 +336,10 @@
   color: var(--font-color);
   border-bottom: 1px solid white;
   border-top: 1px solid darkslategrey;
+  position: absolute;
+  bottom: 60px;
+  left: 85px;
+  width:60rem;
 }
 
 .addButton {
