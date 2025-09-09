@@ -39,6 +39,7 @@ ul {
   .navButton {
     display: flex;
     align-items: center;
+    justify-content:space-between;
     width: 100%;
     background: none;
     border: none;
@@ -49,6 +50,11 @@ ul {
     cursor: pointer;
     padding: 0;
     text-decoration: none;
+  }
+  
+  .navContent {
+    display: flex;
+    align-items: center;
   }
 
   .navIcon {
@@ -63,6 +69,16 @@ ul {
     transition: opacity 0.3s ease;
     white-space: nowrap;
     overflow: hidden;
+  }
+
+  .taskCount {
+    background-color: rgb(69, 66, 66);
+    color: white;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 100px;
+    text-align: center;
+    line-height: 1;
   }
 }
 
