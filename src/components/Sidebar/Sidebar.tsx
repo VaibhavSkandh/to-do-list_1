@@ -1,6 +1,4 @@
-// Sidebar.tsx
-
-import React from "react";
+import React, { useState } from "react";
 import styles from "./Sidebar.module.scss";
 import { User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -15,9 +13,10 @@ interface SidebarProps {
   isMinimized: boolean;
   setIsMinimized: (isMinimized: boolean) => void;
   tasks: Task[];
-  importantCount: number; // New prop
-  assignedCount: number; // New prop
-  plannedCount: number; // New prop
+  importantCount: number;
+  assignedCount: number;
+  plannedCount: number;
+  onTaskSelect: (task: Task) => void; // ✅ new prop
 }
 
 interface NavItem {
@@ -25,7 +24,7 @@ interface NavItem {
   icon: string;
   text: string;
   path: string;
-  count?: number; // Make count optional
+  count?: number;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -40,44 +39,36 @@ const Sidebar: React.FC<SidebarProps> = ({
   importantCount,
   assignedCount,
   plannedCount,
+  onTaskSelect,
 }) => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // ✅ Absolute paths
   const navItems: NavItem[] = [
     { id: "my-day", icon: "light_mode", text: "My Day", path: "/" },
-    {
-      id: "important",
-      icon: "star",
-      text: "Important",
-      path: "/important",
-      count: importantCount,
-    },
-    {
-      id: "planned",
-      icon: "calendar_month",
-      text: "Planned",
-      path: "/planned",
-      count: plannedCount,
-    },
-    {
-      id: "assigned",
-      icon: "person",
-      text: "Assigned to me",
-      path: "/assigned",
-      count: assignedCount,
-    },
-    {
-      id: "tasks",
-      icon: "list_alt",
-      text: "Tasks",
-      path: "/tasks",
-      count: tasks.length,
-    },
+    { id: "important", icon: "star", text: "Important", path: "/important", count: importantCount },
+    { id: "planned", icon: "calendar_month", text: "Planned", path: "/planned", count: plannedCount },
+    { id: "assigned", icon: "person", text: "Assigned to me", path: "/assigned", count: assignedCount },
+    { id: "tasks", icon: "list_alt", text: "Tasks", path: "/tasks", count: tasks.length },
   ];
 
   const handleNavigation = (item: NavItem) => {
     setActiveItem(item.id);
-    navigate(item.path);
+    navigate(item.path, { replace: true });
+  };
+
+  // ✅ Filter tasks by search
+  const filteredTasks = searchQuery
+    ? tasks.filter((t) =>
+        t.text.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  const handleTaskClick = (task: Task) => {
+    navigate("/tasks", { replace: true }); // Go to Tasks page
+    onTaskSelect(task); // ✅ Open TaskDetails
+    setSearchQuery(""); // Clear search
   };
 
   return (
@@ -100,10 +91,38 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
         )}
+
+        {/* ✅ Search Bar */}
         <div className={styles.searchBar}>
-          <input type="text" placeholder="Search" />
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
           <span className="material-icons">search</span>
         </div>
+
+        {/* ✅ Search Results Dropdown */}
+        {searchQuery && (
+          <div className={styles.searchResults}>
+            {filteredTasks.length > 0 ? (
+              <ul>
+                {filteredTasks.map((task) => (
+                  <li
+                    key={task.id}
+                    className={styles.searchResultItem}
+                    onClick={() => handleTaskClick(task)}
+                  >
+                    {task.text}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className={styles.noResults}>No matching tasks</div>
+            )}
+          </div>
+        )}
 
         <nav className={styles.navigation}>
           <ul>
@@ -126,7 +145,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                       <span className={styles.navText}>{item.text}</span>
                     )}
                   </div>
-                  {/* Conditional rendering for the task count */}
                   {item.count !== undefined && item.count > 0 && (
                     <span className={styles.taskCount}>{item.count}</span>
                   )}
@@ -136,11 +154,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           </ul>
           <hr className={styles.divider} />
         </nav>
+
         <div className={styles.bottomActions}>
-          <button className={styles.newListButton}>
-            <span className="material-icons">add</span>
-            {!isMinimized && <span>New list</span>}
-          </button>
           <button onClick={onSignOut} className={styles.signOutButton}>
             <span className="material-icons">logout</span>
             {!isMinimized && <span>Sign Out</span>}

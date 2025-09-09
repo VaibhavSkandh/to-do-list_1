@@ -26,10 +26,9 @@ export interface Task {
   repeat?: string | null;
 }
 
-// All application logic is moved into this new component
 const MainAppLogic: React.FC = () => {
   const { user, loading, signInWithGoogle, handleSignOut } = useAuth();
-  const { tasks, addTask, deleteTask, updateTask } = useTasks(user);
+  const { tasks, deleteTask, updateTask } = useTasks(user);
   const [activeItem, setActiveItem] = useState("my-day");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -38,7 +37,9 @@ const MainAppLogic: React.FC = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate("/");
+      if (window.location.pathname === "/login") {
+        navigate("/", { replace: true });
+      }
     }
   }, [user, loading, navigate]);
 
@@ -59,9 +60,7 @@ const MainAppLogic: React.FC = () => {
       await updateTask(id, updatedFields);
       setSelectedTask((prevTask) => {
         if (!prevTask) return null;
-        return prevTask.id === id
-          ? { ...prevTask, ...updatedFields }
-          : prevTask;
+        return prevTask.id === id ? { ...prevTask, ...updatedFields } : prevTask;
       });
     }
   };
@@ -83,9 +82,7 @@ const MainAppLogic: React.FC = () => {
 
   const importantCount = tasks.filter((task) => task.favorited).length;
   const assignedCount = tasks.filter((task) => task.text.includes("@")).length;
-  const plannedCount = tasks.filter(
-    (task) => task.dueDate || task.reminder
-  ).length;
+  const plannedCount = tasks.filter((task) => task.dueDate || task.reminder).length;
 
   return (
     <div
@@ -112,6 +109,7 @@ const MainAppLogic: React.FC = () => {
                   importantCount={importantCount}
                   assignedCount={assignedCount}
                   plannedCount={plannedCount}
+                  onTaskSelect={handleTaskSelect}
                 />
                 <MainContent
                   onTaskSelect={handleTaskSelect}
