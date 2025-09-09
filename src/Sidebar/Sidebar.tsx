@@ -1,8 +1,10 @@
 // Sidebar.tsx
+
 import React from 'react';
 import styles from './Sidebar.module.scss';
 import { User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { Task } from '../App';
 
 interface SidebarProps {
   user: User | null;
@@ -10,8 +12,12 @@ interface SidebarProps {
   activeItem: string;
   setActiveItem: (itemId: string) => void;
   isVisible: boolean;
-  isMinimized: boolean; 
+  isMinimized: boolean;
   setIsMinimized: (isMinimized: boolean) => void;
+  tasks: Task[];
+  importantCount: number; // New prop
+  assignedCount: number; // New prop
+  plannedCount: number; // New prop
 }
 
 interface NavItem {
@@ -19,17 +25,18 @@ interface NavItem {
   icon: string;
   text: string;
   path: string;
+  count?: number; // Make count optional
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiveItem, isVisible, isMinimized, setIsMinimized }) => {
+const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiveItem, isVisible, isMinimized, setIsMinimized, tasks, importantCount, assignedCount, plannedCount }) => {
   const navigate = useNavigate();
 
   const navItems: NavItem[] = [
     { id: 'my-day', icon: 'light_mode', text: 'My Day', path: '/' },
-    { id: 'important', icon: 'star', text: 'Important', path: '/important' },
-    { id: 'planned', icon: 'calendar_month', text: 'Planned', path: '/planned' },
-    { id: 'assigned', icon: 'person', text: 'Assigned to me', path: '/assigned' },
-    { id: 'tasks', icon: 'list_alt', text: 'Tasks', path: '/tasks' },
+    { id: 'important', icon: 'star', text: 'Important', path: '/important', count: importantCount },
+    { id: 'planned', icon: 'calendar_month', text: 'Planned', path: '/planned', count: plannedCount },
+    { id: 'assigned', icon: 'person', text: 'Assigned to me', path: '/assigned', count: assignedCount },
+    { id: 'tasks', icon: 'list_alt', text: 'Tasks', path: '/tasks', count: tasks.length },
   ];
 
   const handleNavigation = (item: NavItem) => {
@@ -38,8 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiv
   };
 
   return (
-    <>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       <aside className={`${styles.sidebar} ${!isVisible ? styles.sidebarHidden : ''} ${isMinimized ? styles.minimizedSidebar : ''}`}>
         {user && (
           <div className={styles.userInfo}>
@@ -64,8 +70,14 @@ const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiv
                   className={styles.navButton}
                   onClick={() => handleNavigation(item)}
                 >
-                  <span className={`material-icons ${styles.navIcon}`}>{item.icon}</span>
-                  {!isMinimized && <span className={styles.navText}>{item.text}</span>}
+                  <div className={styles.navContent}>
+                    <span className={`material-icons ${styles.navIcon}`}>{item.icon}</span>
+                    {!isMinimized && <span className={styles.navText}>{item.text}</span>}
+                  </div>
+                  {/* Conditional rendering for the task count */}
+                  {item.count !== undefined && item.count > 0 && (
+                    <span className={styles.taskCount}>{item.count}</span>
+                  )}
                 </button>
               </li>
             ))}
