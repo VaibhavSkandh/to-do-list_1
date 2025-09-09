@@ -1,14 +1,14 @@
 // src/Maincontent/Routed_files/AssignedPage.tsx
 
-import React, { useState } from 'react';
-import PageLayout from './PageLayout';
-import PageHeader from './PageHeader';
-import TaskList from './TaskList';
-import TaskBar from './TaskBar';
-import { useAuth } from './useAuth';
-import { useTasks } from './useTasks';
-import TaskDetails from './TaskDetails';
-import { Task } from '../../App';
+import React, { useState } from "react";
+import PageLayout from "../components/PageLayout";
+import PageHeader from "../layouts/PageHeader";
+import TaskList from "../components/Task/TaskList";
+import TaskBar from "../components/Task/TaskItem";
+import { useAuth } from "../hooks/useAuth";
+import { useTasks } from "../hooks/useTasks";
+import TaskDetails from "../components/Task/TaskDetails/TaskDetails";
+import { Task } from "../App";
 
 interface AssignedPageProps {
   onTaskSelect: (task: Task) => void;
@@ -18,24 +18,36 @@ interface AssignedPageProps {
   isMinimized: boolean;
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
-  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
+  handleThemeChange: (theme: {
+    backgroundColor?: string;
+    backgroundImage?: string;
+  }) => void;
 }
 
-const AssignedPage: React.FC<AssignedPageProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
+const AssignedPage: React.FC<AssignedPageProps> = ({
+  onTaskSelect,
+  tasks,
+  onUpdateTask,
+  onDeleteTask,
+  isMinimized,
+  handleToggleMinimize,
+  handleToggleSidebar,
+  handleThemeChange,
+}) => {
   const { user } = useAuth();
   const { addTask, deleteTask, updateTask } = useTasks(user);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [newTaskText, setNewTaskText] = useState('');
+  const [newTaskText, setNewTaskText] = useState("");
 
   const handleAddTask = () => {
-    if (newTaskText.trim() !== '') {
+    if (newTaskText.trim() !== "") {
       addTask(newTaskText);
-      setNewTaskText('');
+      setNewTaskText("");
     }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       handleAddTask();
     }
   };
@@ -51,7 +63,9 @@ const AssignedPage: React.FC<AssignedPageProps> = ({ onTaskSelect, tasks, onUpda
   const handleFavoriteToggle = () => {
     if (selectedTask) {
       onUpdateTask(selectedTask.id, { favorited: !selectedTask.favorited });
-      setSelectedTask((prevTask: Task | null) => prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null);
+      setSelectedTask((prevTask: Task | null) =>
+        prevTask ? { ...prevTask, favorited: !prevTask.favorited } : null
+      );
     }
   };
 
@@ -62,7 +76,7 @@ const AssignedPage: React.FC<AssignedPageProps> = ({ onTaskSelect, tasks, onUpda
     }
   };
 
-  const assignedTasks = tasks.filter(task => task.text.includes('@'));
+  const assignedTasks = tasks.filter((task) => task.text.includes("@"));
 
   return (
     <PageLayout isMinimized={isMinimized}>

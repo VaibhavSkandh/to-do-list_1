@@ -1,10 +1,10 @@
 // Sidebar.tsx
 
-import React from 'react';
-import styles from './Sidebar.module.scss';
-import { User } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
-import { Task } from '../App';
+import React from "react";
+import styles from "./Sidebar.module.scss";
+import { User } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { Task } from "../../App";
 
 interface SidebarProps {
   user: User | null;
@@ -28,15 +28,51 @@ interface NavItem {
   count?: number; // Make count optional
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiveItem, isVisible, isMinimized, setIsMinimized, tasks, importantCount, assignedCount, plannedCount }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  user,
+  onSignOut,
+  activeItem,
+  setActiveItem,
+  isVisible,
+  isMinimized,
+  setIsMinimized,
+  tasks,
+  importantCount,
+  assignedCount,
+  plannedCount,
+}) => {
   const navigate = useNavigate();
 
   const navItems: NavItem[] = [
-    { id: 'my-day', icon: 'light_mode', text: 'My Day', path: '/' },
-    { id: 'important', icon: 'star', text: 'Important', path: '/important', count: importantCount },
-    { id: 'planned', icon: 'calendar_month', text: 'Planned', path: '/planned', count: plannedCount },
-    { id: 'assigned', icon: 'person', text: 'Assigned to me', path: '/assigned', count: assignedCount },
-    { id: 'tasks', icon: 'list_alt', text: 'Tasks', path: '/tasks', count: tasks.length },
+    { id: "my-day", icon: "light_mode", text: "My Day", path: "/" },
+    {
+      id: "important",
+      icon: "star",
+      text: "Important",
+      path: "/important",
+      count: importantCount,
+    },
+    {
+      id: "planned",
+      icon: "calendar_month",
+      text: "Planned",
+      path: "/planned",
+      count: plannedCount,
+    },
+    {
+      id: "assigned",
+      icon: "person",
+      text: "Assigned to me",
+      path: "/assigned",
+      count: assignedCount,
+    },
+    {
+      id: "tasks",
+      icon: "list_alt",
+      text: "Tasks",
+      path: "/tasks",
+      count: tasks.length,
+    },
   ];
 
   const handleNavigation = (item: NavItem) => {
@@ -45,12 +81,22 @@ const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiv
   };
 
   return (
-    <><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-      <aside className={`${styles.sidebar} ${!isVisible ? styles.sidebarHidden : ''} ${isMinimized ? styles.minimizedSidebar : ''}`}>
+    <>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      />
+      <aside
+        className={`${styles.sidebar} ${
+          !isVisible ? styles.sidebarHidden : ""
+        } ${isMinimized ? styles.minimizedSidebar : ""}`}
+      >
         {user && (
           <div className={styles.userInfo}>
             <div className={styles.userDetails}>
-              <div className={styles.userName}>Hi, {user.displayName || 'User Name'}</div>
+              <div className={styles.userName}>
+                Hi, {user.displayName || "User Name"}
+              </div>
             </div>
           </div>
         )}
@@ -58,21 +104,27 @@ const Sidebar: React.FC<SidebarProps> = ({ user, onSignOut, activeItem, setActiv
           <input type="text" placeholder="Search" />
           <span className="material-icons">search</span>
         </div>
-        
+
         <nav className={styles.navigation}>
           <ul>
             {navItems.map((item) => (
               <li
                 key={item.id}
-                className={`${styles.navItem} ${activeItem === item.id ? styles.active : ''}`}
+                className={`${styles.navItem} ${
+                  activeItem === item.id ? styles.active : ""
+                }`}
               >
                 <button
                   className={styles.navButton}
                   onClick={() => handleNavigation(item)}
                 >
                   <div className={styles.navContent}>
-                    <span className={`material-icons ${styles.navIcon}`}>{item.icon}</span>
-                    {!isMinimized && <span className={styles.navText}>{item.text}</span>}
+                    <span className={`material-icons ${styles.navIcon}`}>
+                      {item.icon}
+                    </span>
+                    {!isMinimized && (
+                      <span className={styles.navText}>{item.text}</span>
+                    )}
                   </div>
                   {/* Conditional rendering for the task count */}
                   {item.count !== undefined && item.count > 0 && (

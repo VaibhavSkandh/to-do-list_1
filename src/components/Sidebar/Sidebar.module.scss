@@ -1,7 +1,7 @@
-@import '../styles/variables';
+@import 'src/styles/variables.scss';
 
 .sidebar {
-  width: 30vb;
+  width: 18%;
   background-color: $secondary-bg;
   padding: 3rem 0.8rem;
   border-right: 1px solid #333;

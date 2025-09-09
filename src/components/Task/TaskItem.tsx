@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from './MyDayPage.module.scss';
+import styles from '../../pages/MyDayPage.module.scss';
 
 interface TaskBarProps {
   newTaskText: string;

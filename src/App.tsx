@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-import Sidebar from "./Sidebar/Sidebar";
-import MainContent from "./Maincontent/Maincontent";
-import Login from "./Login/Login";
-import TaskDetails from './Maincontent/Routed_files/TaskDetails';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+import Sidebar from "./components/Sidebar/Sidebar";
+import MainContent from "./components/Main/Maincontent";
+import Login from "./components/Login/Login";
+import TaskDetails from "./components/Task/TaskDetails/TaskDetails";
 import styles from "./App.module.scss";
-import { useAuth } from "./Maincontent/Routed_files/useAuth";
-import { useTasks } from './Maincontent/Routed_files/useTasks';
+import { useAuth } from "./hooks/useAuth";
+import { useTasks } from "./hooks/useTasks";
 import { User } from "firebase/auth";
-import PrivateRoute from "./Maincontent/Routed_files/PrivateRoute";
+import PrivateRoute from "./routes/PrivateRoute";
 
 export interface Task {
   id: string;
@@ -33,7 +38,7 @@ const MainAppLogic: React.FC = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/');
+      navigate("/");
     }
   }, [user, loading, navigate]);
 
@@ -52,9 +57,11 @@ const MainAppLogic: React.FC = () => {
   const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
     if (user) {
       await updateTask(id, updatedFields);
-      setSelectedTask(prevTask => {
+      setSelectedTask((prevTask) => {
         if (!prevTask) return null;
-        return prevTask.id === id ? { ...prevTask, ...updatedFields } : prevTask;
+        return prevTask.id === id
+          ? { ...prevTask, ...updatedFields }
+          : prevTask;
       });
     }
   };
@@ -73,55 +80,64 @@ const MainAppLogic: React.FC = () => {
   const handleToggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
-  
-  const importantCount = tasks.filter(task => task.favorited).length;
-  const assignedCount = tasks.filter(task => task.text.includes('@')).length;
-  const plannedCount = tasks.filter(task => task.dueDate || task.reminder).length;
-  
+
+  const importantCount = tasks.filter((task) => task.favorited).length;
+  const assignedCount = tasks.filter((task) => task.text.includes("@")).length;
+  const plannedCount = tasks.filter(
+    (task) => task.dueDate || task.reminder
+  ).length;
+
   return (
-    <div className={`${styles.appContainer} ${isMinimized ? styles.minimized : ''}`}>
+    <div
+      className={`${styles.appContainer} ${
+        isMinimized ? styles.minimized : ""
+      }`}
+    >
       <Routes>
         <Route path="/login" element={<Login onSignIn={signInWithGoogle} />} />
-        <Route path="/*" element={
-          <PrivateRoute user={user}>
-            <>
-              <Sidebar
-                user={user as User}
-                onSignOut={handleSignOut}
-                activeItem={activeItem}
-                setActiveItem={setActiveItem}
-                isVisible={isSidebarVisible}
-                isMinimized={isMinimized}
-                setIsMinimized={setIsMinimized}
-                tasks={tasks}
-                importantCount={importantCount}
-                assignedCount={assignedCount}
-                plannedCount={plannedCount}
-              />
-              <MainContent
-                onTaskSelect={handleTaskSelect}
-                tasks={tasks}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-                isMinimized={isMinimized}
-                handleToggleMinimize={handleToggleMinimize}
-                handleToggleSidebar={handleToggleSidebar}
-              />
-              {selectedTask && (
-                <TaskDetails
-                  taskTitle={selectedTask.text}
-                  taskId={selectedTask.id}
-                  onClose={handleCloseDetails}
-                  onDelete={handleDeleteTask}
-                  onUpdateTask={handleUpdateTask}
-                  favorited={selectedTask.favorited}
-                  onFavoriteToggle={() => {}}
-                  creationTime={selectedTask.createdAt}
+        <Route
+          path="/*"
+          element={
+            <PrivateRoute user={user}>
+              <>
+                <Sidebar
+                  user={user as User}
+                  onSignOut={handleSignOut}
+                  activeItem={activeItem}
+                  setActiveItem={setActiveItem}
+                  isVisible={isSidebarVisible}
+                  isMinimized={isMinimized}
+                  setIsMinimized={setIsMinimized}
+                  tasks={tasks}
+                  importantCount={importantCount}
+                  assignedCount={assignedCount}
+                  plannedCount={plannedCount}
                 />
-              )}
-            </>
-          </PrivateRoute>
-        } />
+                <MainContent
+                  onTaskSelect={handleTaskSelect}
+                  tasks={tasks}
+                  onUpdateTask={handleUpdateTask}
+                  onDeleteTask={handleDeleteTask}
+                  isMinimized={isMinimized}
+                  handleToggleMinimize={handleToggleMinimize}
+                  handleToggleSidebar={handleToggleSidebar}
+                />
+                {selectedTask && (
+                  <TaskDetails
+                    taskTitle={selectedTask.text}
+                    taskId={selectedTask.id}
+                    onClose={handleCloseDetails}
+                    onDelete={handleDeleteTask}
+                    onUpdateTask={handleUpdateTask}
+                    favorited={selectedTask.favorited}
+                    onFavoriteToggle={() => {}}
+                    creationTime={selectedTask.createdAt}
+                  />
+                )}
+              </>
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </div>
   );

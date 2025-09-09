@@ -1,14 +1,14 @@
 // src/Maincontent/Routed_files/PlannedPage.tsx
 
-import React, { useState } from 'react';
-import PageLayout from './PageLayout';
-import PageHeader from './PageHeader';
-import TaskList from './TaskList';
-import TaskBar from './TaskBar';
-import { useAuth } from './useAuth';
-import { useTasks } from './useTasks';
-import TaskDetails from './TaskDetails';
-import { Task } from '../../App';
+import React, { useState } from "react";
+import PageLayout from "../components/PageLayout";
+import PageHeader from "../layouts/PageHeader";
+import TaskList from "../components/Task/TaskList";
+import TaskBar from "../components/Task/TaskItem";
+import { useAuth } from "../hooks/useAuth";
+import { useTasks } from "../hooks/useTasks";
+import TaskDetails from "../components/Task/TaskDetails/TaskDetails";
+import { Task } from "../App";
 
 interface PlannedPageProps {
   onTaskSelect: (task: Task) => void;
@@ -18,24 +18,36 @@ interface PlannedPageProps {
   isMinimized: boolean;
   handleToggleMinimize: () => void;
   handleToggleSidebar: () => void;
-  handleThemeChange: (theme: { backgroundColor?: string; backgroundImage?: string }) => void;
+  handleThemeChange: (theme: {
+    backgroundColor?: string;
+    backgroundImage?: string;
+  }) => void;
 }
 
-const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdateTask, onDeleteTask, isMinimized, handleToggleMinimize, handleToggleSidebar, handleThemeChange }) => {
+const PlannedPage: React.FC<PlannedPageProps> = ({
+  onTaskSelect,
+  tasks,
+  onUpdateTask,
+  onDeleteTask,
+  isMinimized,
+  handleToggleMinimize,
+  handleToggleSidebar,
+  handleThemeChange,
+}) => {
   const { user } = useAuth();
   const { addTask } = useTasks(user);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [newTaskText, setNewTaskText] = useState('');
+  const [newTaskText, setNewTaskText] = useState("");
 
   const handleAddTask = () => {
-    if (newTaskText.trim() !== '') {
+    if (newTaskText.trim() !== "") {
       addTask(newTaskText);
-      setNewTaskText('');
+      setNewTaskText("");
     }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       handleAddTask();
     }
   };
@@ -50,12 +62,20 @@ const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdate
 
   const handleUpdateTask = async (id: string, updatedFields: Partial<Task>) => {
     const updatedData: Partial<Task> = { ...updatedFields };
-    if (updatedData.dueDate && typeof updatedData.dueDate === 'string' && isNaN(new Date(updatedData.dueDate).getTime())) {
-      console.error('Invalid dueDate value:', updatedData.dueDate);
+    if (
+      updatedData.dueDate &&
+      typeof updatedData.dueDate === "string" &&
+      isNaN(new Date(updatedData.dueDate).getTime())
+    ) {
+      console.error("Invalid dueDate value:", updatedData.dueDate);
       delete updatedData.dueDate;
     }
-    if (updatedData.reminder && typeof updatedData.reminder === 'string' && isNaN(new Date(updatedData.reminder).getTime())) {
-      console.error('Invalid reminder value:', updatedData.reminder);
+    if (
+      updatedData.reminder &&
+      typeof updatedData.reminder === "string" &&
+      isNaN(new Date(updatedData.reminder).getTime())
+    ) {
+      console.error("Invalid reminder value:", updatedData.reminder);
       delete updatedData.reminder;
     }
     await onUpdateTask(id, updatedData);
@@ -65,7 +85,9 @@ const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdate
     if (selectedTask) {
       const updatedFavorited = !selectedTask.favorited;
       await handleUpdateTask(selectedTask.id, { favorited: updatedFavorited });
-      setSelectedTask(prevTask => prevTask ? { ...prevTask, favorited: updatedFavorited } : null);
+      setSelectedTask((prevTask) =>
+        prevTask ? { ...prevTask, favorited: updatedFavorited } : null
+      );
     }
   };
 
@@ -76,7 +98,7 @@ const PlannedPage: React.FC<PlannedPageProps> = ({ onTaskSelect, tasks, onUpdate
     }
   };
 
-  const plannedTasks = tasks.filter(task => task.dueDate || task.reminder);
+  const plannedTasks = tasks.filter((task) => task.dueDate || task.reminder);
 
   return (
     <PageLayout isMinimized={isMinimized}>

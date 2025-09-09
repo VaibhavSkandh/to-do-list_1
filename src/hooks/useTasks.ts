@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { User } from 'firebase/auth';
-import { db } from '../../firebase';
-import { Task } from '../../App';
+import { db } from '../firebase';
+import { Task } from '../App';
 
 
 export const useTasks = (user: User | null) => {
