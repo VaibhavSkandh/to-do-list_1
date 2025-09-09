@@ -5,7 +5,7 @@
   background-color: $secondary-bg;
   padding: 3rem 0.8rem;
   border-right: 1px solid #333;
-  color:white;
+  color: white;
   transition: width 0.3s ease, padding 0.3s ease;
 }
 
@@ -23,23 +23,23 @@ ul {
   display: flex;
   align-items: center;
   padding: 0.5rem 0rem;
-  margin:0.4rem 0rem;
+  margin: 0.4rem 0rem;
   border-radius: 4px;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color:rgb(69, 66, 66)
+    background-color: rgb(69, 66, 66);
   }
 
   &.active {
-    background-color:rgb(69, 66, 66);
+    background-color: rgb(69, 66, 66);
     opacity: 1;
   }
 
   .navButton {
     display: flex;
     align-items: center;
-    justify-content:space-between;
+    justify-content: space-between;
     width: 100%;
     background: none;
     border: none;
@@ -51,7 +51,7 @@ ul {
     padding: 0;
     text-decoration: none;
   }
-  
+
   .navContent {
     display: flex;
     align-items: center;
@@ -108,7 +108,7 @@ ul {
   background-color: rgba(69, 66, 66, 0.4);
   border-radius: 4px;
   padding: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   transition: padding 0.3s ease, margin-bottom 0.3s ease;
 
   input {
@@ -123,6 +123,43 @@ ul {
 
   .material-icons {
     color: white;
+  }
+}
+
+.searchResults {
+  position: absolute;
+  top: 150px;
+  left: 13px;
+  width: 277px;
+  background-color: rgba(69, 66, 66, 0.95);
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 999;
+  padding: 0.3rem 0;
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .searchResultItem {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: white;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  .noResults {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #ccc;
+    text-align: center;
   }
 }
 
@@ -147,13 +184,18 @@ ul {
   padding: 0.5rem;
 
   button {
-    background: none;
+    background: grey;
     border: none;
     color: white;
     cursor: pointer;
     font-size: 1rem;
     display: flex;
     align-items: center;
+    position: relative;
+    top: 12rem;
+    right: -4rem;
+    border-radius: 27px;
+    width: 92px;
 
     .material-icons {
       margin-right: 0.5rem;
@@ -173,6 +215,7 @@ ul {
   border-radius: 4px;
   transition: background-color 0.2s;
   width: 100%;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -185,18 +228,20 @@ ul {
   padding: 0.5rem;
   border-radius: 4px;
   transition: background-color 0.2s;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
 }
 
 .minimizedSidebar {
-    width: 118px;
-    padding: 3rem 0.5rem;
-    position: relative;
-    top: -342px;
-    border-radius: 13px; 
-     .userInfo {
+  width: 118px;
+  padding: 3rem 0.5rem;
+  position: relative;
+  top: -342px;
+  border-radius: 13px;
+
+  .userInfo {
     padding: 0;
     margin-bottom: 1rem;
   }
@@ -211,6 +256,7 @@ ul {
   .searchBar {
     padding: 0.3rem;
     margin-bottom: 1rem;
+
     input {
       display: none;
     }
@@ -230,7 +276,9 @@ ul {
 
   .bottomActions {
     padding: 0.2rem;
-    .newListButton, .signOutButton {
+
+    .newListButton,
+    .signOutButton {
       span:last-child {
         display: none;
       }

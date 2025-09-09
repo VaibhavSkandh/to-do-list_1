@@ -97,8 +97,9 @@ const MainContent: React.FC<MainContentProps> = ({
       <div className={styles.mainContainer}>
         <div className={styles.taskContainer}>
           <Routes>
+            {/* Default route */}
             <Route
-              path="/"
+              index
               element={
                 <MyDayPage
                   onTaskSelect={onTaskSelect}
@@ -113,7 +114,7 @@ const MainContent: React.FC<MainContentProps> = ({
               }
             />
             <Route
-              path="/important"
+              path="important"
               element={
                 <ImportantPage
                   onTaskSelect={onTaskSelect}
@@ -128,7 +129,7 @@ const MainContent: React.FC<MainContentProps> = ({
               }
             />
             <Route
-              path="/planned"
+              path="planned"
               element={
                 <PlannedPage
                   onTaskSelect={onTaskSelect}
@@ -143,7 +144,7 @@ const MainContent: React.FC<MainContentProps> = ({
               }
             />
             <Route
-              path="/assigned"
+              path="assigned"
               element={
                 <AssignedPage
                   onTaskSelect={onTaskSelect}
@@ -158,7 +159,7 @@ const MainContent: React.FC<MainContentProps> = ({
               }
             />
             <Route
-              path="/tasks"
+              path="tasks"
               element={
                 <TasksPage
                   onTaskSelect={onTaskSelect}
