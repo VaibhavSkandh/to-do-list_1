@@ -1,3 +1,5 @@
+@import 'src/styles/variables.scss';
+
 .mainContent {
   flex-grow: 1;
   height: 100vh;
@@ -6,6 +8,7 @@
   background-position: center;
   border-style: none;
   position: relative; 
+  background-color: var(--primary-bg);
 }
 
 .overlay {

@@ -1,4 +1,35 @@
-$primary-bg: #1e1e1e;
-$secondary-bg: #2d2d2d;
-$text-color: #f0f0f0;
-$accent-color: #0078d4;
+/* src/styles/variables.scss */
+
+:root {
+  // Dark Theme (default)
+  --primary-bg: #1e1e1e;
+  --secondary-bg: #2d2d2d;
+  --tertiary-bg: #252525;
+  --font-color: #f1f1f1;
+  --font-color-secondary: #999;
+  --border-color: #444;
+  --accent-color: #1a73e8;
+  --accent-hover: #155bb5;
+  --hover-bg: #333;
+  --subtle-hover-bg: rgba(255, 255, 255, 0.1);
+  --task-item-bg: rgba(15, 15, 15, 0.74);
+  --task-item-border: rgba(255, 255, 255, 0.1);
+  --completed-bg: #0078d4;
+}
+
+.light-theme {
+  // Light Theme
+  --primary-bg: #ffffff;
+  --secondary-bg: #f5f5f5;
+  --tertiary-bg: #ebebeb;
+  --font-color: #2d2d2d;
+  --font-color-secondary: #777;
+  --border-color: #ddd;
+  --accent-color: #0078d4;
+  --accent-hover: #005a9e;
+  --hover-bg: #e0e0e0;
+  --subtle-hover-bg: rgba(0, 0, 0, 0.05);
+  --task-item-bg: rgba(255, 255, 255, 0.7);
+  --task-item-border: rgba(0, 0, 0, 0.1);
+  --completed-bg: #1a73e8;
+}

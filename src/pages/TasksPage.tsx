@@ -7,7 +7,7 @@ import TaskList from "../components/Task/TaskList";
 import TaskBar from "../components/Task/TaskItem";
 import { useAuth } from "../hooks/useAuth";
 import { useTasks } from "../hooks/useTasks";
-import TaskDetails from "../components/Task/TaskDetails/TaskDetails";
+import TaskDetails from "../components/Task/TaskDetails/Task_Details";
 import { Task } from "../App";
 
 interface TasksPageProps {
