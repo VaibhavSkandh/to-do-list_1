@@ -2,10 +2,10 @@
 
 .sidebar {
   width: 18%;
-  background-color: $secondary-bg;
+  background-color: var(--secondary-bg);
   padding: 3rem 0.8rem;
-  border-right: 1px solid #333;
-  color: white;
+  border-right: 1px solid var(--border-color);
+  color: var(--font-color);
   transition: width 0.3s ease, padding 0.3s ease;
 }
 
@@ -28,11 +28,11 @@ ul {
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: rgb(69, 66, 66);
+    background-color: var(--hover-bg);
   }
 
   &.active {
-    background-color: rgb(69, 66, 66);
+    background-color: var(--hover-bg);
     opacity: 1;
   }
 
@@ -72,8 +72,8 @@ ul {
   }
 
   .taskCount {
-    background-color: rgb(69, 66, 66);
-    color: white;
+    background-color: var(--hover-bg);
+    color: var(--font-color);
     font-size: 0.8rem;
     padding: 0.2rem 0.5rem;
     border-radius: 100px;
@@ -116,13 +116,13 @@ ul {
     background: none;
     border: none;
     outline: none;
-    color: white;
+    color: var(--font-color);
     font-size: 1rem;
     padding: 0.2rem 0.5rem;
   }
 
   .material-icons {
-    color: white;
+    color: var(--font-color);
   }
 }
 
@@ -131,7 +131,7 @@ ul {
   top: 150px;
   left: 13px;
   width: 277px;
-  background-color: rgba(69, 66, 66, 0.95);
+  background-color: var(--secondary-bg);
   border-radius: 4px;
   max-height: 300px;
   overflow-y: auto;
@@ -147,18 +147,18 @@ ul {
     padding: 0.5rem 1rem;
     cursor: pointer;
     font-size: 0.95rem;
-    color: white;
+    color: var(--font-color);
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: var(--subtle-hover-bg);
     }
   }
 
   .noResults {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
-    color: #ccc;
+    color: var(--font-color-secondary);
     text-align: center;
   }
 }
@@ -171,7 +171,7 @@ ul {
 .divider {
   border: 0;
   height: 1px;
-  background: #333;
+  background: var(--border-color);
   margin: 1rem 0;
 }
 
@@ -186,7 +186,7 @@ ul {
   button {
     background: grey;
     border: none;
-    color: white;
+    color: var(--font-color);
     cursor: pointer;
     font-size: 1rem;
     display: flex;
@@ -208,7 +208,7 @@ ul {
   align-items: center;
   background: none;
   border: none;
-  color: white;
+  color: var(--font-color);
   font-size: 1rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -217,7 +217,7 @@ ul {
   width: 100%;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--subtle-hover-bg);
   }
 }
 
@@ -230,7 +230,7 @@ ul {
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--subtle-hover-bg);
   }
 }
 

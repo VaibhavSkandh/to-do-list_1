@@ -8,7 +8,7 @@ import {
 import Sidebar from "./components/Sidebar/Sidebar";
 import MainContent from "./components/Main/Maincontent";
 import Login from "./components/Login/Login";
-import TaskDetails from "./components/Task/TaskDetails/TaskDetails";
+import TaskDetails from "./components/Task/TaskDetails/Task_Details";
 import styles from "./App.module.scss";
 import { useAuth } from "./hooks/useAuth";
 import { useTasks } from "./hooks/useTasks";
@@ -27,7 +27,7 @@ export interface Task {
 }
 
 const MainAppLogic: React.FC = () => {
-  const { user, loading, signInWithGoogle, handleSignOut } = useAuth();
+  const { user, loading, error, signInWithGoogle, handleSignOut } = useAuth(); // Added 'error' to destructuring
   const { tasks, deleteTask, updateTask } = useTasks(user);
   const [activeItem, setActiveItem] = useState("my-day");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -91,7 +91,8 @@ const MainAppLogic: React.FC = () => {
       }`}
     >
       <Routes>
-        <Route path="/login" element={<Login onSignIn={signInWithGoogle} />} />
+        {/* Passed loading and error props to Login component */}
+        <Route path="/login" element={<Login onSignIn={signInWithGoogle} loading={loading} error={error} />} />
         <Route
           path="/*"
           element={

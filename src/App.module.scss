@@ -1,4 +1,6 @@
 /* App.module.scss */
+@import 'src/styles/variables.scss';
+
 .appContainer {
   display: flex;
   height: 100vh;
@@ -15,7 +17,7 @@
   height: 100px;
   border-radius: 12px;
   backdrop-filter: blur(20px);
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--tertiary-bg);
   z-index: 100;
   display: flex;
   justify-content: center;

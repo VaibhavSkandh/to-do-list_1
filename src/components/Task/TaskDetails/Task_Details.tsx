@@ -1,5 +1,3 @@
-// src/Maincontent/Routed_files/TaskDetails.tsx
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { doc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -10,6 +8,9 @@ import RemindMe from "../../../functionalities_of_taskdetails/RemindMe";
 import AddDueDate from "../../../functionalities_of_taskdetails/AddDueDate";
 import Repeat from "../../../functionalities_of_taskdetails/Repeat";
 import { Task } from "../../../App";
+import TaskHeader from "./Task_Header";
+import TaskActionItem from "./Task_Action_Item";
+import TaskAttachments from "./Task_Attachments";
 
 export interface TaskDetailsProps {
   onClose: () => void;
@@ -22,7 +23,7 @@ export interface TaskDetailsProps {
   creationTime: Date;
 }
 
-const TaskDetails: React.FC<TaskDetailsProps> = ({
+const TaskDetailsPanel: React.FC<TaskDetailsProps> = ({
   onClose,
   onDelete,
   onUpdateTask,
@@ -38,14 +39,13 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   const [dueDate, setDueDate] = useState<string | null>(null);
   const [repeat, setRepeat] = useState<string | null>(null);
   const [files, setFiles] = useState<{ name: string; url: string }[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const localStorageKey = `taskDetails-${taskId}`;
 
   useEffect(() => {
     if (!user) return;
 
-    const fetchFiles = async () => {
+    const fetchFilesAndData = async () => {
       try {
         const taskRef = doc(db, "users", user.uid, "tasks", taskId);
         const taskSnap = await getDoc(taskRef);
@@ -54,52 +54,22 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           if (data.files) {
             setFiles(data.files);
           }
-        }
-      } catch (error) {
-        console.error("Error fetching files:", error);
-      }
-    };
-    fetchFiles();
-    const savedData = localStorage.getItem(localStorageKey);
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.reminder) {
-          const isDateString =
-            typeof parsedData.reminder === "string" &&
-            !isNaN(new Date(parsedData.reminder).getTime());
-          if (isDateString) {
-            setReminder(new Date(parsedData.reminder));
-          } else {
-            setReminder(parsedData.reminder);
+          if (data.reminder) {
+            setReminder(data.reminder.toDate ? data.reminder.toDate() : data.reminder);
+          }
+          if (data.dueDate) {
+            setDueDate(data.dueDate.toDate ? data.dueDate.toDate().toLocaleDateString() : data.dueDate);
+          }
+          if (data.repeat) {
+            setRepeat(data.repeat);
           }
         }
-        if (parsedData.dueDate) {
-          setDueDate(parsedData.dueDate);
-        }
-        if (parsedData.repeat) {
-          setRepeat(parsedData.repeat);
-        }
-      } catch (e) {
-        console.error("Failed to parse localStorage data:", e);
-        localStorage.removeItem(localStorageKey);
+      } catch (error) {
+        console.error("Error fetching task details:", error);
       }
-    }
-  }, [user, taskId, localStorageKey]);
-
-  const saveToLocalStorage = (
-    newReminder: Date | string | null,
-    newDueDate: string | null,
-    newRepeat: string | null
-  ) => {
-    const dataToSave = {
-      reminder:
-        newReminder instanceof Date ? newReminder.toISOString() : newReminder,
-      dueDate: newDueDate,
-      repeat: newRepeat,
     };
-    localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
-  };
+    fetchFilesAndData();
+  }, [user, taskId]);
 
   const handlePanelToggle = (panelName: string) => {
     setOpenPanel(openPanel === panelName ? null : panelName);
@@ -109,13 +79,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
     setReminder(value);
     onUpdateTask(taskId, { reminder: value });
     setOpenPanel(null);
-    saveToLocalStorage(value, dueDate, repeat);
   };
 
   const handleClearReminder = () => {
     setReminder(null);
     onUpdateTask(taskId, { reminder: null });
-    saveToLocalStorage(null, dueDate, repeat);
   };
 
   const handleSetDueDate = (value: string | null) => {
@@ -140,26 +108,22 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
     }
     onUpdateTask(taskId, { dueDate: dueDateValue });
     setOpenPanel(null);
-    saveToLocalStorage(reminder, value, repeat);
   };
 
   const handleClearDueDate = () => {
     setDueDate(null);
     onUpdateTask(taskId, { dueDate: null });
-    saveToLocalStorage(reminder, null, repeat);
   };
 
   const handleSetRepeat = (value: string) => {
     setRepeat(value);
     onUpdateTask(taskId, { repeat: value });
     setOpenPanel(null);
-    saveToLocalStorage(reminder, dueDate, value);
   };
 
   const handleClearRepeat = () => {
     setRepeat(null);
     onUpdateTask(taskId, { repeat: null });
-    saveToLocalStorage(reminder, dueDate, null);
   };
 
   const handleFileChange = async (
@@ -182,10 +146,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           ...prevFiles,
           { name: file.name, url: downloadURL },
         ]);
-        alert("File uploaded successfully!");
+        // Re-integrating the alert message logic with a custom approach
+        console.log("File uploaded successfully!");
       } catch (error) {
         console.error("Error uploading file:", error);
-        alert("File upload failed. Check the console for details.");
       }
     }
   };
@@ -345,177 +309,60 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
 
   return (
     <aside className={styles.taskDetailsPanel}>
-      <button onClick={onClose} className={styles.closeButton}>
-        <span className="material-icons">close</span>
-      </button>
-      <div className={styles.taskHeaderSection}>
-        <div className={styles.header}>
-          <div className={styles.titleSection}>
-            <span className={styles.checkbox}></span>
-            <h2 className={styles.taskTitle}>{taskTitle}</h2>
-            <button
-              className={styles.favoriteButton}
-              onClick={onFavoriteToggle}
-            >
-              <span
-                className={`${styles.starIcon} material-icons ${
-                  favorited ? styles.favorited : ""
-                }`}
-              >
-                star
-              </span>
-            </button>
-          </div>
-        </div>
-        <div className={styles.addStepSection}>
-          <span className={`${styles.addStepIcon} material-icons`}>add</span>
-          <span className={styles.addStepText}>Add step</span>
-        </div>
-      </div>
+      <TaskHeader
+        taskTitle={taskTitle}
+        favorited={favorited}
+        onFavoriteToggle={onFavoriteToggle}
+        onClose={onClose}
+        onAddStep={() => {}} // Placeholder for now
+      />
       <div className={styles.content}>
         <div className={styles.myDaySection}>
           <span className={`${styles.myDayIcon} material-icons`}>wb_sunny</span>
           <span className={styles.myDayText}>Added to My Day</span>
         </div>
         <div className={styles.actionSection}>
-          <div
-            className={`${styles.actionItem} ${
-              openPanel === "remindMe" ? styles.active : ""
-            }`}
+          <TaskActionItem
+            icon="schedule"
+            label="Remind me"
+            value={reminder instanceof Date ? reminder.toLocaleString() : reminder}
+            isOpen={openPanel === "remindMe"}
+            onToggle={() => handlePanelToggle("remindMe")}
+            onClear={handleClearReminder}
           >
-            <div
-              className={styles.actionItemHeader}
-              onClick={() => handlePanelToggle("remindMe")}
-            >
-              <span className={`${styles.actionIcon} material-icons`}>
-                schedule
-              </span>
-              <span className={styles.actionText}>Remind me</span>
-              {reminder && (
-                <span className={styles.actionValue}>
-                  {reminder instanceof Date
-                    ? reminder.toLocaleString()
-                    : reminder}
-                </span>
-              )}
-              {reminder && (
-                <button
-                  className={styles.clearDateButton}
-                  onClick={handleClearReminder}
-                >
-                  <span className="material-icons">close</span>
-                </button>
-              )}
-            </div>
-            {openPanel === "remindMe" && (
-              <RemindMe
-                onSetReminder={handleSetReminder}
-                onClose={() => setOpenPanel(null)}
-              />
-            )}
-          </div>
-
-          <div
-            className={`${styles.actionItem} ${
-              openPanel === "addDueDate" ? styles.active : ""
-            }`}
+            <RemindMe
+              onSetReminder={handleSetReminder}
+              onClose={() => setOpenPanel(null)}
+            />
+          </TaskActionItem>
+          <TaskActionItem
+            icon="calendar_today"
+            label={getDueDateDisplay()}
+            isOpen={openPanel === "addDueDate"}
+            onToggle={() => handlePanelToggle("addDueDate")}
+            onClear={handleClearDueDate}
           >
-            <div
-              className={styles.actionItemHeader}
-              onClick={() => handlePanelToggle("addDueDate")}
-            >
-              <span className={`${styles.actionIcon} material-icons`}>
-                calendar_today
-              </span>
-              <span className={styles.actionText}>{getDueDateDisplay()}</span>
-              {dueDate && (
-                <button
-                  className={styles.clearDateButton}
-                  onClick={handleClearDueDate}
-                >
-                  <span className="material-icons">close</span>
-                </button>
-              )}
-            </div>
-            {openPanel === "addDueDate" && (
-              <AddDueDate
-                onSetDueDate={handleSetDueDate}
-                onClose={() => setOpenPanel(null)}
-              />
-            )}
-          </div>
-
-          <div
-            className={`${styles.actionItem} ${
-              openPanel === "repeat" ? styles.active : ""
-            }`}
+            <AddDueDate
+              onSetDueDate={handleSetDueDate}
+              onClose={() => setOpenPanel(null)}
+            />
+          </TaskActionItem>
+          <TaskActionItem
+            icon="repeat"
+            label="Repeat"
+            value={repeat}
+            isOpen={openPanel === "repeat"}
+            onToggle={() => handlePanelToggle("repeat")}
+            onClear={handleClearRepeat}
           >
-            <div
-              className={styles.actionItemHeader}
-              onClick={() => handlePanelToggle("repeat")}
-            >
-              <span className={`${styles.actionIcon} material-icons`}>
-                repeat
-              </span>
-              <span className={styles.actionText}>
-                {repeat ? `Repeat: ${repeat}` : "Repeat"}
-              </span>
-              {repeat && (
-                <button
-                  className={styles.clearDateButton}
-                  onClick={handleClearRepeat}
-                >
-                  <span className="material-icons">close</span>
-                </button>
-              )}
-            </div>
-            {openPanel === "repeat" && (
-              <Repeat
-                onSetRepeat={handleSetRepeat}
-                onClose={() => setOpenPanel(null)}
-              />
-            )}
-          </div>
+            <Repeat
+              onSetRepeat={handleSetRepeat}
+              onClose={() => setOpenPanel(null)}
+            />
+          </TaskActionItem>
         </div>
 
-        <div className={styles.addFileSection}>
-          <label htmlFor="file-upload" className={styles.addFileLabel}>
-            <span className={`${styles.addFileIcon} material-icons`}>
-              attach_file
-            </span>
-            <span className={styles.addFileText}>Add file</span>
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
-        </div>
-
-        {files.length > 0 && (
-          <div className={styles.uploadedFilesSection}>
-            <h3 className={styles.uploadedFilesTitle}>Attached Files</h3>
-            <ul className={styles.filesList}>
-              {files.map((file, index) => (
-                <li key={index} className={styles.fileItem}>
-                  <a
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.fileLink}
-                  >
-                    <span className={`${styles.fileIcon} material-icons`}>
-                      insert_drive_file
-                    </span>
-                    {file.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <TaskAttachments files={files} onFileChange={handleFileChange} />
 
         <div className={styles.noteSection}>
           <textarea
@@ -539,4 +386,4 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   );
 };
 
-export default TaskDetails;
+export default TaskDetailsPanel;

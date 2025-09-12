@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import styles from "./MyDayPage.module.scss";
 import { useAuth } from "../hooks/useAuth";
 import { useTasks } from "../hooks/useTasks";
-import TaskDetails from "../components/Task/TaskDetails/TaskDetails";
+import TaskDetails from "../components/Task/TaskDetails/Task_Details";
 import PageLayout from "../components/PageLayout";
 import PageHeader from "../layouts/PageHeader";
 import TaskList from "../components/Task/TaskList";
