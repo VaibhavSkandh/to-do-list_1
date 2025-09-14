@@ -8,10 +8,14 @@ interface PageLayoutProps {
 
 const PageLayout: React.FC<PageLayoutProps> = ({ children, isMinimized }) => {
   return (
-    <div className={`${styles.myDayLayout} ${isMinimized ? styles.minimized : ''}`}>
+    <div
+      className={`${styles.myDayLayout} ${isMinimized ? styles.minimized : ''}`}
+      role="main"
+      aria-hidden={isMinimized}
+    >
       {children}
     </div>
   );
 };
 
-export default PageLayout;
+export default React.memo(PageLayout);
