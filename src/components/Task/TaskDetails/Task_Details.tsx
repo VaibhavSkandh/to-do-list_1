@@ -310,11 +310,9 @@ const TaskDetailsPanel: React.FC<TaskDetailsProps> = ({
   return (
     <aside className={styles.taskDetailsPanel}>
       <TaskHeader
-        taskTitle={taskTitle}
-        favorited={favorited}
-        onFavoriteToggle={onFavoriteToggle}
+        taskId={taskId}
         onClose={onClose}
-        onAddStep={() => {}} // Placeholder for now
+        onAddStep={() => {}}
       />
       <div className={styles.content}>
         <div className={styles.myDaySection}>
