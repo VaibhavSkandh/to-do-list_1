@@ -1,21 +1,52 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./TaskDetails.module.scss";
+import { useAuth } from "../../../hooks/useAuth";
+import { useTasks } from "../../../hooks/useTasks";
 
 interface TaskHeaderProps {
-  taskTitle: string;
-  favorited: boolean;
-  onFavoriteToggle: () => void;
+  taskId: string;
   onClose: () => void;
   onAddStep: () => void;
 }
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({
-  taskTitle,
-  favorited,
-  onFavoriteToggle,
+  taskId,
   onClose,
   onAddStep,
 }) => {
+  const { user } = useAuth();
+  const { tasks, updateTask } = useTasks(user);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [favorited, setFavorited] = useState(false);
+
+  useEffect(() => {
+    if (tasks.length > 0) {
+      const task = tasks.find((t) => t.id === taskId);
+      if (task) {
+        setTaskTitle(task.text);
+        setFavorited(task.favorited);
+      }
+    }
+  }, [tasks, taskId]);
+
+  const handleFavoriteToggle = async () => {
+    const newFavoritedState = !favorited;
+    setFavorited(newFavoritedState);
+    if (user) {
+      await updateTask(taskId, { favorited: newFavoritedState });
+    }
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTaskTitle(e.target.value);
+  };
+
+  const handleTitleBlur = async () => {
+    if (user && taskTitle.trim() !== "") {
+      await updateTask(taskId, { text: taskTitle });
+    }
+  };
+
   return (
     <div className={styles.taskHeaderSection}>
       <button onClick={onClose} className={styles.closeButton}>
@@ -24,10 +55,16 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
       <div className={styles.header}>
         <div className={styles.titleSection}>
           <span className={styles.checkbox}></span>
-          <h2 className={styles.taskTitle}>{taskTitle}</h2>
+          <input
+            type="text"
+            className={styles.taskTitle}
+            value={taskTitle}
+            onChange={handleTitleChange}
+            onBlur={handleTitleBlur}
+          />
           <button
             className={styles.favoriteButton}
-            onClick={onFavoriteToggle}
+            onClick={handleFavoriteToggle}
           >
             <span
               className={`${styles.starIcon} material-icons ${
